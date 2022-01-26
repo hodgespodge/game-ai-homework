@@ -5,3 +5,8 @@ SingleSprite: SingleSprite.o
 SingleSprite.o: SingleSprite.cpp
 	g++ -c SingleSprite.cpp
 
+MultiSprite: MultiSprite.o 
+	g++ MultiSprite.o -o MultiSprite -lsfml-graphics -lsfml-window -lsfml-system
+
+MultiSprite.o: MultiSprite.cpp
+	g++ -c MultiSprite.cpp
