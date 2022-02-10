@@ -70,6 +70,8 @@ int main(int argc, char *argv[])
             window.draw(s);
         }
 
+        // Detect here for mouse click event?
+
         // window.draw(sprite);
         window.display();
     }

@@ -15,7 +15,6 @@ public:
     {
         velocity = sf::Vector2f(0.0f, 0.0f);
         acceleration = sf::Vector2f(0.0f, 0.0f);
-        // this->sprite = sprite;
     }
 
     // Destructor
@@ -32,9 +31,6 @@ public:
     // update the sprite's position using its velocity
     void updatePosition(float elapsedTime)
     {
-        // printf this sprite's current position
-        // printf("%f, %f\n", getPosition().x, getPosition().y);
-        
         move(velocity * elapsedTime);
     }
 
@@ -45,7 +41,6 @@ public:
             setRotation(atan2(velocity.y, velocity.x) * 180 / 3.14159265);
         }
     }
-
 
 };
 

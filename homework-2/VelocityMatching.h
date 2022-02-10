@@ -3,7 +3,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "SteeringBehavior.h"
-#include "KinematicSprite.h"
+// #include "KinematicSprite.h"
 
 // Declare a class that implements the SteeringBehavior interface 
 class VelocityMatching : public SteeringBehavior
@@ -32,7 +32,7 @@ public:
         sprite.updatePosition(elapsedTime);
         sprite.updateRotation();
         
-    }
+    } 
     void postUpdate()
     {
         previousMousePosition = sf::Mouse::getPosition(*window);

@@ -2,21 +2,22 @@
 #define ARRIVEANDALIGN_H
 
 #include <SFML/Graphics.hpp>
+// #include "KinematicSprite.h"
 #include "SteeringBehavior.h"
 
 class ArriveAndAlign : public SteeringBehavior
 {
 private:
-
+    sf::RenderWindow* window;
+    sf::Vector2i TargetPosition;
 public:
     // Constructor
     ArriveAndAlign(sf::RenderWindow& window)
     {
         this->window = &window;
-        previousMousePosition = sf::Mouse::getPosition(window);
     }
 
-    void updateSprite(sf::Sprite& sprite, float elapsedTime)
+    void updateSprite(KinematicSprite& sprite, float elapsedTime)
     {
 
     }
