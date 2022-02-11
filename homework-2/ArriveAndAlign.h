@@ -12,6 +12,7 @@ private:
     sf::Vector2f TargetPosition;
     bool isTargetSet;
     std::list<sf::Sprite> BreadCrumbs;
+    uint updateCount;
 
 public:
 
@@ -30,6 +31,11 @@ public:
     float angularSlowRadius; // not a true radius, but a threshold for when to slow angular motion
 
     float timeToAngularTarget;
+    int numBreadCrumbs;
+    int updatesPerBreadCrumb;
+
+    sf::Sprite breadCrumbSprite;
+    sf::Texture breadCrumbTexture;
 
     // Constructor
     ArriveAndAlign(sf::RenderWindow& window  )
@@ -38,10 +44,10 @@ public:
         isTargetSet = false;
         TargetPosition = sf::Vector2f(0,0);
 
-        maxSpeed = 1.0f; // 1 is plenty fast
+        maxSpeed = 0.5f; // 1 is plenty fast
         maxAcceleration = 0.005f;
         
-        linearTargetRadius = 30.0f;
+        linearTargetRadius = 25.0f;
         linearSlowRadius = 150.0f;
 
         timeToLinearTarget = 0.1f;
@@ -50,14 +56,41 @@ public:
         maxAngularAcceleration = 0.005f;
 
         angularTargetRadius = 10.0f;
-        angularSlowRadius = 50.0f;
+        angularSlowRadius = 90.0f;
 
-        timeToAngularTarget = 0.1f;
+        timeToAngularTarget = timeToLinearTarget;
 
+        numBreadCrumbs = 10;
+        updateCount = 0;
+        updatesPerBreadCrumb = 100;
+
+        breadCrumbTexture.loadFromFile("images/boid-sm.png");
+        
     }
 
     void updateSprite(KinematicSprite& sprite, float elapsedTime)
     {
+        updateCount++;
+
+        if (updateCount % updatesPerBreadCrumb == 0)
+        {
+            updateCount = 0;
+
+            printf("Adding breadcrumb\n");
+
+            if (BreadCrumbs.size() > numBreadCrumbs)
+            {
+                breadCrumbSprite = BreadCrumbs.back();
+                BreadCrumbs.pop_back();
+            }
+
+            breadCrumbSprite.setTexture(breadCrumbTexture);
+            breadCrumbSprite.setPosition(sprite.getPosition());
+            breadCrumbSprite.setRotation(sprite.getRotation());    
+        
+            BreadCrumbs.push_front(breadCrumbSprite);
+
+        }
 
         if(!isTargetSet){
             return;
@@ -68,8 +101,7 @@ public:
         float distance = magnitude(direction);
 
         float targetSpeed;
-        
-        if (! distance < linearTargetRadius  ) // else linear component is within goal
+        if (! (distance < linearTargetRadius)  ) // else linear component is within goal
         {
                 // if we are outside the linearSlowRadius, then go max speed
             if (distance > linearSlowRadius)
@@ -98,48 +130,65 @@ public:
             sprite.updateLinearVelocity(elapsedTime);
             sprite.updatePosition(elapsedTime);
         } else {
+
+            sprite.linearAcceleration = sf::Vector2f(0,0);
             sprite.linearVelocity = sf::Vector2f(0,0);
         }        
 
+        // Do the align algorithm
+
         float targetRotation;
-        
-        // Get angle between the direction to the target and the direction of the sprite using cosine
+        float rotation =  atan2(direction.y, direction.x) * 180.0f / 3.14159f -  sprite.getRotation();
 
-        float rotationSize = angleBetween(sprite.linearVelocity, direction);
+        // Map the rotation to the (-pi, pi) range
+        if (rotation > 180.0f)
+        {
+            rotation -= 360.0f;
+        }
+        else if (rotation < -180.0f)
+        {
+            rotation += 360.0f;
+        }
 
+        float rotationSize = abs(rotation);
         if(! rotationSize < angularTargetRadius){
+
             if(rotationSize > angularSlowRadius){
                 targetRotation = maxRotation;
-            }else{
+            }
+
+            else{
                 targetRotation = maxRotation * (rotationSize / angularSlowRadius);
             }
 
-            float angular = targetRotation - sprite.angularVelocity;
-            angular /= timeToAngularTarget;
 
-            float angularAcceleration = abs(angular);
-            if (angularAcceleration > maxAngularAcceleration)
-            {
-                angular /= angularAcceleration;
-                angular *= maxAngularAcceleration;
-            } 
+            targetRotation *= rotation / rotationSize;
 
-            sprite.angularAcceleration = angular;
+            sprite.angularAcceleration = targetRotation - sprite.angularVelocity;
+            sprite.angularAcceleration /= timeToAngularTarget;
 
+            if(abs(sprite.angularAcceleration) > maxAngularAcceleration){
+                sprite.angularAcceleration /= abs(sprite.angularAcceleration);
+                sprite.angularAcceleration *= maxAngularAcceleration;
+            }
 
-            // These functions are broken for some reason :/
-            // sprite.updateAngularVelocity(elapsedTime);
-            // sprite.updateAngle(elapsedTime);
+            sprite.updateAngularVelocity(elapsedTime);
+            sprite.updateAngle(elapsedTime);
     
         } else{
+            sprite.angularAcceleration = 0.0f;
             sprite.angularVelocity = 0;
         }
 
     }
+
+    // for some reason breadcrumbs aren't actually drawing.
+    // Should test that window is actual reference
     void postUpdate()
     {
         for(auto &s : BreadCrumbs){
             window->draw(s);
+
         }
 
     }
