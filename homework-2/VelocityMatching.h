@@ -28,14 +28,18 @@ public:
         // get the mouseVelocity using the difference between the current and previous mouse position divided by the elapsed time
         sf::Vector2f mouseVelocity =  sf::Vector2f((mousePosition.x - previousMousePosition.x) / elapsedTime, (mousePosition.y - previousMousePosition.y) / elapsedTime);
         
-        sprite.velocity = mouseVelocity;
+        sprite.linearVelocity = mouseVelocity;
         sprite.updatePosition(elapsedTime);
-        sprite.updateRotation();
+        sprite.snapAngleToVelocity();
+        
         
     } 
     void postUpdate()
     {
         previousMousePosition = sf::Mouse::getPosition(*window);
+    }
+    void checkEvent(sf::Event event) // not used
+    {
     }
 
     // Destructor
