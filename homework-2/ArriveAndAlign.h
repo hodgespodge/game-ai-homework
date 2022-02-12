@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "SteeringBehavior.h"
 #include "HelperFunctions.h"
+#include "Boid.h"
 
 class ArriveAndAlign : public SteeringBehavior
 {
@@ -11,8 +12,8 @@ private:
     sf::RenderWindow* window;
     sf::Vector2f TargetPosition;
     bool isTargetSet;
-    std::list<sf::Sprite> BreadCrumbs;
-    uint updateCount;
+    // std::list<sf::Sprite> BreadCrumbs;
+    // uint updateCount;
 
 public:
 
@@ -31,11 +32,11 @@ public:
     float angularSlowRadius; // not a true radius, but a threshold for when to slow angular motion
 
     float timeToAngularTarget;
-    int numBreadCrumbs;
-    int updatesPerBreadCrumb;
+    // int numBreadCrumbs;
+    // int updatesPerBreadCrumb;
 
-    sf::Sprite breadCrumbSprite;
-    sf::Texture breadCrumbTexture;
+    // sf::Sprite breadCrumbSprite;
+    // sf::Texture breadCrumbTexture;
 
     // Constructor
     ArriveAndAlign(sf::RenderWindow& window  )
@@ -60,35 +61,37 @@ public:
 
         timeToAngularTarget = timeToLinearTarget;
 
-        numBreadCrumbs = 10;
-        updateCount = 0;
-        updatesPerBreadCrumb = 10;
+        // numBreadCrumbs = 10;
+        // updateCount = 0;
+        // updatesPerBreadCrumb = 10;
 
-        breadCrumbTexture.loadFromFile("images/breadcrumb.png");
+        // breadCrumbTexture.loadFromFile("images/breadcrumb.png");
         
     }
 
-    void updateSprite(KinematicSprite& sprite, float elapsedTime)
+    void updateSprite(Boid& sprite, float elapsedTime)
     {
-        updateCount++;
+        // updateCount++;
 
-        if (updateCount % updatesPerBreadCrumb == 0)
-        {
-            updateCount = 0;
+        // if (updateCount % updatesPerBreadCrumb == 0)
+        // {
+        //     updateCount = 0;
 
-            if (BreadCrumbs.size() > numBreadCrumbs)
-            {
-                breadCrumbSprite = BreadCrumbs.back();
-                BreadCrumbs.pop_back();
-            }
+        //     if (BreadCrumbs.size() > numBreadCrumbs)
+        //     {
+        //         breadCrumbSprite = BreadCrumbs.back();
+        //         BreadCrumbs.pop_back();
+        //     }
 
-            breadCrumbSprite.setTexture(breadCrumbTexture);
-            breadCrumbSprite.setPosition(sprite.getPosition());
-            breadCrumbSprite.setRotation(sprite.getRotation());    
+        //     breadCrumbSprite.setTexture(breadCrumbTexture);
+        //     breadCrumbSprite.setPosition(sprite.getPosition());
+        //     breadCrumbSprite.setRotation(sprite.getRotation());    
         
-            BreadCrumbs.push_front(breadCrumbSprite);
+        //     BreadCrumbs.push_front(breadCrumbSprite);
 
-        }
+        // }
+
+        sprite.updateBreadcrumbs();
 
         if(!isTargetSet){
             return;
@@ -184,12 +187,12 @@ public:
     {
     }
 
-    void drawExtra(sf::RenderWindow& window)
-    {
-        for(auto &s : BreadCrumbs){
-            window.draw(s);
-        }
-    }
+    // void drawExtra(sf::RenderWindow& window)
+    // {
+    //     for(auto &s : BreadCrumbs){
+    //         window.draw(s);
+    //     }
+    // }
 
     void checkEvent(sf::Event event)
     {
