@@ -8,6 +8,7 @@
 #include "VelocityMatching.h"
 #include "ArriveAndAlign.h"
 #include "KinematicSprite.h"
+#include "Wander.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,9 +34,10 @@ int main(int argc, char *argv[])
     } else if(argc > 1 && strcmp(argv[1], "-a") == 0){
         steeringBehavior = new ArriveAndAlign(window);
         numKinematicSprites = 1;
-    } 
-        
-    else {
+    } else if(argc > 1 && strcmp(argv[1], "-w") == 0){
+        steeringBehavior = new Wander(window);
+        numKinematicSprites = 1;
+    } else {
         printf("Using default steering behavior: VelocityMatching\n");
         steeringBehavior = new VelocityMatching(window);
     }
@@ -78,6 +80,8 @@ int main(int argc, char *argv[])
 
         // clear the window with white color
         window.clear(sf::Color::White);
+
+        steeringBehavior->drawExtra(window);
 
         for(auto &s : kinematicSprites){
             window.draw(s);

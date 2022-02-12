@@ -42,6 +42,10 @@ public:
     {
     }
 
+    void drawExtra(sf::RenderWindow& window) // not used
+    {
+    }
+
     // Destructor
     ~VelocityMatching()
     {

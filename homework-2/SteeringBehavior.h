@@ -11,6 +11,7 @@ public:
     virtual void updateSprite( KinematicSprite& sprite, float elapsedTime) = 0;
     virtual void postUpdate() = 0;
     virtual void checkEvent(sf::Event event) = 0;
+    virtual void drawExtra(sf::RenderWindow& window) = 0;
 };
 
 

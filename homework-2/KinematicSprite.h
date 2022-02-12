@@ -83,9 +83,6 @@ public:
         if (magnitude(linearVelocity) > 0.0f)
         {
             setRotation(atan2(linearVelocity.y, linearVelocity.x) * 180.0f / 3.14159f);
-            printf("angle: %f\n", getRotation());
-
-
 
         }
     }

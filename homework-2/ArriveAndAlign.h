@@ -62,9 +62,9 @@ public:
 
         numBreadCrumbs = 10;
         updateCount = 0;
-        updatesPerBreadCrumb = 100;
+        updatesPerBreadCrumb = 10;
 
-        breadCrumbTexture.loadFromFile("images/boid-sm.png");
+        breadCrumbTexture.loadFromFile("images/breadcrumb.png");
         
     }
 
@@ -75,8 +75,6 @@ public:
         if (updateCount % updatesPerBreadCrumb == 0)
         {
             updateCount = 0;
-
-            printf("Adding breadcrumb\n");
 
             if (BreadCrumbs.size() > numBreadCrumbs)
             {
@@ -182,15 +180,15 @@ public:
 
     }
 
-    // for some reason breadcrumbs aren't actually drawing.
-    // Should test that window is actual reference
-    void postUpdate()
+    void postUpdate() // not used
+    {
+    }
+
+    void drawExtra(sf::RenderWindow& window)
     {
         for(auto &s : BreadCrumbs){
-            window->draw(s);
-
+            window.draw(s);
         }
-
     }
 
     void checkEvent(sf::Event event)
