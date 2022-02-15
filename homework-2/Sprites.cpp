@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-// #include <vector>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,8 +6,8 @@
 #include "SteeringBehavior.h"
 #include "VelocityMatching.h"
 #include "ArriveAndAlign.h"
-// #include "KinematicSprite.h"
 #include "Wander.h"
+#include "Flocking.h"
 #include "Boid.h"
 
 int main(int argc, char *argv[])
@@ -22,9 +21,8 @@ int main(int argc, char *argv[])
     }
 
     std::list<Boid> Boids;
-
-    // initialize a Boid
-    Boid sprite;
+    
+    int numBreadCrumbs = 10;
     int numBoids;
     bool drawBreadcrumbs = false;
     bool fadeBreadcrumbs = false;
@@ -35,30 +33,43 @@ int main(int argc, char *argv[])
     if(argc > 1 && strcmp(argv[1], "-v") == 0){
         steeringBehavior = new VelocityMatching(window);
         numBoids = 10;
+        numBreadCrumbs = 0;
         drawBreadcrumbs = false;
         fadeBreadcrumbs = false;
     } else if(argc > 1 && strcmp(argv[1], "-a") == 0){
         steeringBehavior = new ArriveAndAlign(window);
-        numBoids = 10;
+        numBoids = 1;
+        numBreadCrumbs = 10;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;
     } else if(argc > 1 && strcmp(argv[1], "-w") == 0){
         steeringBehavior = new Wander(window);
-        numBoids = 5;
+        numBoids = 2;
+        numBreadCrumbs = 50;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;
+    } else if(argc > 1 && strcmp(argv[1], "-f") == 0){
+        steeringBehavior = new Flocking(window, Boids);
+        numBoids = 20;
+        numBreadCrumbs = 5;
+        drawBreadcrumbs = true;
+        fadeBreadcrumbs = true;
+     
     } else {
         printf("Using default steering behavior: VelocityMatching\n");
         steeringBehavior = new VelocityMatching(window);
         numBoids = 10;
+        numBreadCrumbs = 0;
         drawBreadcrumbs = false;
         fadeBreadcrumbs = false;
     }
 
-    // Create 10 KinematicBoids with random positions inside the window and add them to the list
+    Boid sprite(numBreadCrumbs);
+
     for(int i = 0; i < numBoids; i++){
         sprite.setTexture(texture);
         sprite.setPosition(rand() % (int)window.getSize().x, rand() % (int)window.getSize().y);
+        sprite.setID(i);
         Boids.push_back(sprite);
     }
 
@@ -76,14 +87,13 @@ int main(int argc, char *argv[])
             
         }
 
-        // steeringBehavior->eventPoll();
-
         if (clock.getElapsedTime().asMilliseconds() > 10)
         {
 
             // update each sprite using the steering behavior
             for(auto &s : Boids){
                 steeringBehavior->updateSprite(s, clock.getElapsedTime().asMilliseconds() );
+
             }
 
             steeringBehavior->postUpdate();

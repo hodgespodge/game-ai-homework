@@ -13,12 +13,7 @@ class Wander : public SteeringBehavior
 {
 private:
     sf::RenderWindow* window;
-    // int numBreadCrumbs;
     int updateCount;
-    // int updatesPerBreadCrumb;
-    // sf::Sprite breadCrumbSprite;
-    // sf::Texture breadCrumbTexture;
-    // std::list<sf::Sprite> BreadCrumbs;
     sf::Vector2f TargetPosition;
 
 public:
@@ -31,12 +26,8 @@ public:
         // Initialize target position to the center of the window
         TargetPosition = sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2);
 
-        // numBreadCrumbs = 20;
         updateCount = 0;
-        // updatesPerBreadCrumb = 10;
-
-        // breadCrumbTexture.loadFromFile("images/breadcrumb.png");
-
+ 
     }
 
     void updateSprite(Boid& sprite, float elapsedTime)
@@ -111,27 +102,6 @@ public:
     void checkEvent(sf::Event event) // not used
     {
     }
-
-    // void drawExtra(sf::RenderWindow& window) // not used
-    // {
-
-    //     // int i = 0;
-    //     // for (auto it = BreadCrumbs.begin(); it != BreadCrumbs.end(); ++it)
-    //     // {
-    //     //     // have breadcrumbs later in the list fade out
-    //     //     it->setColor(sf::Color(0,0,0, 255 - i * (255/numBreadCrumbs)));
-
-    //     //     window.draw(*it);
-    //     //     i += 1;
-    //     // }
-
-    //     // for each sprite, drawBreadcrumbs
-    //     for (auto it = BreadCrumbs.begin(); it != BreadCrumbs.end(); ++it)
-    //     {
-    //         window.draw(*it);
-    //     }
-
-    // }
 
     // Destructor
     ~Wander()

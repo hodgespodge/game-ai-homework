@@ -14,28 +14,31 @@ private:
 
     int updateCount;
     int updatesPerBreadCrumb;
-
-
+    int BoidID;
 
 public:
 
-    Boid(){
-        maxBreadCrumbs = 20;
+    Boid(int numBreadCrumbs){
+        maxBreadCrumbs = numBreadCrumbs;
         breadCrumbTexture.loadFromFile("images/breadcrumb.png");
         updateCount = 0;
         updatesPerBreadCrumb = 10;
     }
 
+    int getID(){
+        return BoidID;
+    }
+
+    void setID(int ID){
+        BoidID = ID;
+    }
+
     void updateBreadcrumbs(){
         updateCount++;
-
-        // printf("updateCount: %d\n", updateCount);
 
         if (updateCount % updatesPerBreadCrumb == 0)
         {
             updateCount = 0;
-
-            // printf("updating breadcrumbs\n");
 
             if (BreadCrumbs.size() > maxBreadCrumbs)
             {
@@ -66,8 +69,6 @@ public:
         }
 
     }
-
-
 };
 
 #endif
