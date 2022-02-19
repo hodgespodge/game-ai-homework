@@ -38,45 +38,14 @@ public:
         sprite.updateBreadcrumbs();
 
         float maxAcceleration = 0.001f;
-        float maxSpeed = 0.7f;
+        float maxSpeed = 0.5f;
 
         if (updateCount % 100 == 0)
         {
             // set targetPosition to a random position on the screen
             TargetPosition = sf::Vector2f(rand() % window->getSize().x, rand() % window->getSize().y);
 
-        }
-
-        // if sprite is out of the window, bounce the velocity back
-        if (sprite.getPosition().x < 0 || sprite.getPosition().x > window->getSize().x)
-        {
-            sprite.linearVelocity= sf::Vector2f(sprite.linearVelocity.x * -1, sprite.linearVelocity.y);
-
-            // also set the sprite's position back to the edge it hit
-            if (sprite.getPosition().x < 0)
-            {
-                sprite.setPosition(0, sprite.getPosition().y);
-            }
-            else
-            {
-                sprite.setPosition(window->getSize().x, sprite.getPosition().y);
-            }
-        }
-
-        if (sprite.getPosition().y < 0 || sprite.getPosition().y > window->getSize().y)
-        {
-            sprite.linearVelocity = sf::Vector2f(sprite.linearVelocity.x, sprite.linearVelocity.y * -1);
-
-            // also set the sprite's position back to the edge it hit
-            if (sprite.getPosition().y < 0)
-            {
-                sprite.setPosition(sprite.getPosition().x, 0);
-            }
-            else
-            {
-                sprite.setPosition(sprite.getPosition().x, window->getSize().y);
-            }
-        }
+        }        
 
         sf::Vector2f direction = TargetPosition - sprite.getPosition();
         direction = unitVector(direction);
@@ -89,7 +58,8 @@ public:
             sprite.linearAcceleration = unitVector(sprite.linearVelocity) * -maxAcceleration;
         }
 
-        sprite.updateLinearVelocity(elapsedTime);
+        sprite.updateLinearVelocity(elapsedTime, maxSpeed);
+        sprite.bounceOffWalls(*window, 0.8f);
         sprite.updatePosition(elapsedTime);
         sprite.snapAngleToVelocity();
         

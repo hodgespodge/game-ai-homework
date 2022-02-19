@@ -87,6 +87,56 @@ public:
         }
     }
 
+    void bounceOffWalls(sf::RenderWindow& window){
+        bounceOffWalls(window, 100.0f);
+    }
+
+    void bounceOffWalls(sf::RenderWindow& window, float bounceFactor)
+    {
+
+        int windowWidth = window.getSize().x;
+        int windowHeight = window.getSize().y;
+        sf::Vector2f position = getPosition();
+
+        if (position.x < 0)
+        {
+            position.x = 1;
+
+            if (linearVelocity.x < 0)
+            {
+                linearVelocity.x *= -bounceFactor;
+            }
+        }
+        else if (position.x > windowWidth)
+        {
+            position.x = windowWidth - 1;
+
+            if (linearVelocity.x > 0)
+            {
+                linearVelocity.x *= -bounceFactor;
+            }
+        }
+
+        if (position.y < 0)
+        {
+            position.y = 1;
+            if(linearVelocity.y < 0)
+            {
+                linearVelocity.y *= -bounceFactor;
+            }
+        
+        }
+        else if (position.y > windowHeight)
+        {
+            position.y = windowHeight - 1;
+            if (linearVelocity.y > 0)
+            {
+                linearVelocity.y *= -bounceFactor;
+            }
+        }
+
+    }
+
 };
 
 #endif
