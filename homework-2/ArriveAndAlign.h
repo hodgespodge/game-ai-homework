@@ -12,9 +12,6 @@ private:
     sf::RenderWindow* window;
     sf::Vector2f TargetPosition;
     bool isTargetSet;
-
-public:
-
     float maxSpeed;
     float maxAcceleration;
     
@@ -31,10 +28,21 @@ public:
 
     float timeToAngularTarget;
 
+public:
+
     // Constructor
     ArriveAndAlign(sf::RenderWindow& window  )
     {
         this->window = &window;
+
+        // set the default user values
+        numBoids = 1;
+        numBreadCrumbs = 20;
+        drawBreadcrumbs = true;
+        fadeBreadcrumbs = true;
+        drawID = false;
+        // end of user values
+
         isTargetSet = false;
         TargetPosition = sf::Vector2f(0,0);
 
@@ -61,6 +69,7 @@ public:
         sprite.updateBreadcrumbs();
 
         if(!isTargetSet){
+            sprite.linearVelocity = sf::Vector2f(0,0);
             return;
         }
 

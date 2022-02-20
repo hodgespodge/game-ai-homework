@@ -17,8 +17,18 @@ public:
     // Constructor
     VelocityMatching(sf::RenderWindow& window)
     {
+
         this->window = &window;
         previousMousePosition = sf::Mouse::getPosition(window);
+        
+        // set the default user values
+        numBoids = 10;
+        numBreadCrumbs = 0;
+        drawBreadcrumbs = false;
+        fadeBreadcrumbs = false;
+        drawID = false;
+        // end of user values
+        
     }
 
     void updateSprite(Boid& sprite, float elapsedTime)

@@ -6,18 +6,13 @@
 
 static float magnitude(sf::Vector2f& vector)
 {
+
     return sqrt(vector.x * vector.x + vector.y * vector.y);
 }
 
 static sf::Vector2f unitVector(sf::Vector2f& vector)
 {
-    if (magnitude(vector) == 0.0f)
-    {
-        printf("Error: Cannot normalize a zero vector.\n");
-        
-        // return sf::Vector2f(0.0f, 0.0f);
-    }
-
+    
     return vector / magnitude(vector);
 }
 

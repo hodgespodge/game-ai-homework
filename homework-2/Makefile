@@ -1,4 +1,4 @@
-all: Sprites
+all: clean Sprites
 
 Sprites: Sprites.o 
 	g++ Sprites.o -o Sprites -lsfml-graphics -lsfml-window -lsfml-system

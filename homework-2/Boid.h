@@ -12,6 +12,9 @@ private:
     sf::Texture breadCrumbTexture;
     std::list<sf::Sprite> BreadCrumbs;
 
+    sf::Font font;
+    sf::Text text;
+
     int updateCount;
     int updatesPerBreadCrumb;
     int BoidID;
@@ -19,10 +22,19 @@ private:
 public:
 
     Boid(int numBreadCrumbs){
+
         maxBreadCrumbs = numBreadCrumbs;
         breadCrumbTexture.loadFromFile("images/breadcrumb.png");
+        
+        if (!font.loadFromFile("fonts/arial.ttf")){
+            printf("Could not load font\n");
+        };
         updateCount = 0;
         updatesPerBreadCrumb = 10;
+
+        text.setFont(font);
+        text.setCharacterSize(15);
+        text.setColor(sf::Color::Black);
     }
 
     int getID(){
@@ -31,6 +43,7 @@ public:
 
     void setID(int ID){
         BoidID = ID;
+        text.setString(std::to_string(BoidID));
     }
 
     void updateBreadcrumbs(){
@@ -69,6 +82,13 @@ public:
         }
 
     }
+
+    void drawID(sf::RenderWindow& window){
+
+        text.setPosition(getPosition().x, getPosition().y - 30);
+        window.draw(text);
+    }
+    
 };
 
 #endif

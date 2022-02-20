@@ -23,6 +23,14 @@ public:
     {
         this->window = &window;
 
+        // set the default user values
+        numBoids = 1;
+        numBreadCrumbs = 50;
+        drawBreadcrumbs = true;
+        fadeBreadcrumbs = true;
+        drawID = false;
+        // end of user values
+
         // Initialize target position to the center of the window
         TargetPosition = sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2);
 
@@ -37,8 +45,8 @@ public:
 
         sprite.updateBreadcrumbs();
 
-        float maxAcceleration = 0.001f;
-        float maxSpeed = 0.5f;
+        float maxAcceleration = 0.0005f;
+        float maxSpeed = 0.4f;
 
         if (updateCount % 100 == 0)
         {

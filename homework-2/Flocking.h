@@ -10,60 +10,60 @@ class Flocking : public SteeringBehavior
 
 private:
     sf::RenderWindow* window;
-    std::list<Boid>* allBoids;
+    std::list<Boid*>* allBoids;
 
     float visionRadius;
     float separationRadius;
     float maxSpeed;
-    float maxAcceleration;
-    float linearAcceleration;
+    float maxChange;
 
     float alignmentWeight;
     float separationWeight;
     float cohesionWeight;
+    float windowWeight;
 
 public:
 
-    Flocking(sf::RenderWindow& window, std::list<Boid>& allBoids)
+    Flocking(sf::RenderWindow& window, std::list<Boid*>& allBoids)
     {
         this->window = &window;
         this->allBoids = &allBoids;
-        
-        visionRadius = 200.0f;
-        separationRadius = 100.0f;
-        maxSpeed = 0.2f;
-        maxAcceleration = 0.01f;
-        linearAcceleration = 0.001f;
 
-        // am currently getting nan with this config. Must test
-        alignmentWeight = 0.5f;
-        separationWeight = 0.5f;
-        cohesionWeight = 0.1f;
+        // set the default user values
+        numBoids = 35;
+        numBreadCrumbs = 5;
+        drawBreadcrumbs = true;
+        fadeBreadcrumbs = true;
+        drawID = false;
+        // end of user values
+
+
+        visionRadius = 80.0f;
+        separationRadius = 20.0f;
+        maxSpeed = 0.3f;
+        maxChange = 0.01f; // Basically acceleration
+
+        alignmentWeight = 1.0f;
+        separationWeight = 0.8f;
+        cohesionWeight = 0.75f;
+
     }
 
     std::list<Boid> getNeighbors(Boid& boid)
     {   // Returns a list of all boids within the vision radius not including the boid itself
         std::list<Boid> neighbors;
-        for (std::list<Boid>::iterator it = allBoids->begin(); it != allBoids->end(); ++it)
+        for (auto s : *allBoids)
         {
-            if (it->getID() != boid.getID())
+            if (s->getID() != boid.getID())
             {   
-                sf::Vector2f diff = it->getPosition() - boid.getPosition();
+                sf::Vector2f diff = s->getPosition() - boid.getPosition();
 
                 if (magnitude(diff) < visionRadius)
                 {
-                    neighbors.push_back(*it);
+                    neighbors.push_back(*s);
                 }
             }
         }
-        
-        //print the list of neighbors
-        for (std::list<Boid>::iterator it = neighbors.begin(); it != neighbors.end(); ++it)
-        {
-            printf("%d\n", it->getID());
-        }
-
-        printf("boid %d has %d neighbors\n", boid.getID(), neighbors.size());
 
         return neighbors;
 
@@ -79,12 +79,6 @@ public:
             alignment += it->linearVelocity;
         }
 
-
-        if(neighbors.size() == 0)
-        {
-            printf("No neighbors in alignment\n");
-        }
-
         alignment /= (float) neighbors.size();
         return alignment;
     }
@@ -95,11 +89,6 @@ public:
         for (std::list<Boid>::iterator it = neighbors.begin(); it != neighbors.end(); ++it)
         {
             cohesion += it->getPosition();
-        }
-
-        if(neighbors.size() == 0)
-        {
-            printf("No neighbors in cohesion");
         }
 
         cohesion /= (float) neighbors.size();
@@ -121,23 +110,20 @@ public:
                 boidsInRadius++;
             }
         }
-        separation /= (float) boidsInRadius;
+        if (boidsInRadius > 0)
+        {
+            separation /= (float) boidsInRadius;
+        }
 
-
-
-        // printf("sepration values %f %f\n", separation.x, separation.y);
         return separation;
     }
 
     void updateSprite(Boid& sprite, float elapsedTime)
     {
-        
         sprite.updateBreadcrumbs();
 
         std::list<Boid> neighbors = getNeighbors(sprite);  // get neighbors
-
-        // printf("neighbors: %d\n", neighbors.size());
-        sf::Vector2f steeringForce;
+        sf::Vector2f change = sf::Vector2f(0.0f, 0.0f);
 
         // is it reporting neighbors when there are none?
         if (neighbors.size() > 0)
@@ -150,22 +136,25 @@ public:
             // printf("cohesion: %f, %f\n", cohesion.x, cohesion.y);
 
             sf::Vector2f separation = getSeparation( sprite, neighbors);
-            // printf("separation: %f, %f\n", separation.x, separation.y);
+            // sf::Vector2f separation = sf::Vector2f(0.0f, 0.0f);
 
-            steeringForce = (alignment * alignmentWeight) + (cohesion * cohesionWeight) + (separation * separationWeight);
+            change = (alignment * alignmentWeight)
+                    + (cohesion * cohesionWeight)
+                    + (separation * separationWeight);
 
-
-            sprite.linearVelocity += steeringForce * 0.01f;
-
-            if (magnitude(sprite.linearVelocity) > maxSpeed)
+            if (magnitude(change) > maxChange)
             {
-                sprite.linearVelocity = unitVector(sprite.linearVelocity) * maxSpeed;
+                change = unitVector(change) * maxChange;
             }
         }
-        else
+
+        sprite.linearVelocity += change;
+
+        sprite.repulseOffWalls(*window, 0.01f, 75.0f);
+
+        if (magnitude(sprite.linearVelocity) > maxSpeed)
         {
-            // set linear acceleration to opposite of current linear velocity
-            sprite.linearVelocity = sprite.linearVelocity * 0.0f;
+            sprite.linearVelocity = unitVector(sprite.linearVelocity) * maxSpeed;
         }
 
         sprite.updatePosition(elapsedTime);

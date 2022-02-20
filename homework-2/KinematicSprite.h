@@ -39,8 +39,7 @@ public:
         linearVelocity += linearAcceleration * elapsedTime;
 
         if (magnitude(linearVelocity) > maxLinearVelocity)
-        {
-            
+        { 
             linearVelocity = unitVector(linearVelocity) * maxLinearVelocity;
         }
     }
@@ -134,7 +133,35 @@ public:
                 linearVelocity.y *= -bounceFactor;
             }
         }
+    }
 
+    void repulseOffWalls(sf::RenderWindow& window, float repulsion, int proximity)
+    {
+        int windowWidth = window.getSize().x;
+        int windowHeight = window.getSize().y;
+        sf::Vector2f position = getPosition();
+
+        if (position.x < proximity)
+        {
+            linearVelocity.x += repulsion;
+            linearVelocity.y += 0.5* (linearVelocity.y / abs(linearVelocity.y)) *  repulsion;
+
+        }
+        else if (position.x > windowWidth - proximity)
+        {
+            linearVelocity.x += -repulsion;
+            linearVelocity.y += 0.5*(linearVelocity.y / abs(linearVelocity.y)) *  repulsion;;
+        }
+        if (position.y < proximity)
+        {
+            linearVelocity.y += repulsion;
+            linearVelocity.x += 0.5*(linearVelocity.x / abs(linearVelocity.x)) *  repulsion;;
+        }
+        else if (position.y > windowHeight - proximity)
+        {
+            linearVelocity.y += -repulsion;
+            linearVelocity.x += 0.5*(linearVelocity.x / abs(linearVelocity.x)) *  repulsion;;
+        }
     }
 
 };

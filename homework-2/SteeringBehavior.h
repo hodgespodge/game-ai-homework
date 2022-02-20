@@ -9,10 +9,15 @@ class SteeringBehavior
 {
 public:
 
+    int numBreadCrumbs = 10;
+    int numBoids;
+    bool drawBreadcrumbs = false;
+    bool fadeBreadcrumbs = false;
+    bool drawID = true;
+
     virtual void updateSprite( Boid& sprite, float elapsedTime) = 0;
     virtual void postUpdate() = 0;
     virtual void checkEvent(sf::Event event) = 0;
-    // virtual void drawExtra(sf::RenderWindow& window) = 0;
 };
 
 
