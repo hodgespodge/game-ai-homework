@@ -15,15 +15,17 @@ private:
     sf::Font font;
     sf::Text text;
 
+    float breadCrumbScale;
     int updateCount;
     int updatesPerBreadCrumb;
     int BoidID;
 
 public:
 
-    Boid(int numBreadCrumbs){
+    Boid(int numBreadCrumbs, float breadCrumbScale){
 
         maxBreadCrumbs = numBreadCrumbs;
+        this->breadCrumbScale = breadCrumbScale;
         breadCrumbTexture.loadFromFile("images/breadcrumb.png");
         
         if (!font.loadFromFile("fonts/arial.ttf")){
@@ -58,11 +60,12 @@ public:
                 breadCrumbSprite = BreadCrumbs.back();
                 BreadCrumbs.pop_back();
             }
-
+            
             breadCrumbSprite.setTexture(breadCrumbTexture);
             breadCrumbSprite.setPosition(getPosition());
             breadCrumbSprite.setRotation(getRotation());    
             breadCrumbSprite.setColor(sf::Color(0,0,0, 255));
+            breadCrumbSprite.setScale(breadCrumbScale, breadCrumbScale);
 
             BreadCrumbs.push_front(breadCrumbSprite);
         }
@@ -83,6 +86,7 @@ public:
 
     }
 
+    // used for debugging boid behavior. Displays the boid ID above the boid
     void drawID(sf::RenderWindow& window){
 
         text.setPosition(getPosition().x, getPosition().y - 30);

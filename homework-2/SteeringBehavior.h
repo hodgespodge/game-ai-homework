@@ -1,6 +1,7 @@
 #ifndef STEERINGBEHAVIOR_H
 #define STEERINGBEHAVIOR_H
 
+#define IDEAL_WINDOW_SIZE 2073600
 // #include "KinematicSprite.h"
 #include "Boid.h"
 
@@ -8,8 +9,6 @@
 class SteeringBehavior
 {
 public:
-
-    
 
     int numBreadCrumbs = 10;
     int numBoids;

@@ -28,6 +28,8 @@ private:
 
     float timeToAngularTarget;
 
+    float windowSizeFactor;
+
 public:
 
     // Constructor
@@ -43,24 +45,28 @@ public:
         drawID = false;
         // end of user values
 
+        windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
+
+
         isTargetSet = false;
         TargetPosition = sf::Vector2f(0,0);
 
-        maxSpeed = 0.5f; // 1 is plenty fast
-        maxAcceleration = 0.005f;
+        maxSpeed = 0.5f * windowSizeFactor; // 1 is plenty fast
+        maxAcceleration = 0.005f * windowSizeFactor;
         
-        linearTargetRadius = 25.0f;
-        linearSlowRadius = 150.0f;
+        linearTargetRadius = 25.0f * windowSizeFactor;
+        linearSlowRadius = 150.0f * windowSizeFactor;
 
-        timeToLinearTarget = 0.1f;
+        timeToLinearTarget = 0.1f * windowSizeFactor;
 
-        maxRotation = 0.5f;
-        maxAngularAcceleration = 0.005f;
+        maxRotation = 0.5f * windowSizeFactor;
+        maxAngularAcceleration = 0.00045f * windowSizeFactor;
 
-        angularTargetRadius = 10.0f;
-        angularSlowRadius = 90.0f;
+        angularTargetRadius = 10.0f * windowSizeFactor;
+        angularSlowRadius = 90.0f * windowSizeFactor;
 
         timeToAngularTarget = timeToLinearTarget;
+
     }
 
     void updateSprite(Boid& sprite, float elapsedTime)

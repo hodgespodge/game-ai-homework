@@ -33,19 +33,17 @@ int main(int argc, char *argv[])
 
     std::list<Boid*> boids;
 
-    // create elapsedTime pointer
-    // int *elapsedTime = new int;
-
     int targetFPS = 40;
     int numBreadCrumbs;
     int numBoids;
     bool drawBreadcrumbs;
     bool fadeBreadcrumbs;
     bool drawID;
+    int numThreads = 1;
 
     SteeringBehavior* steeringBehavior = NULL;
 
-    // if second argument is "v", use velocity matching
+    // if second argument is "-v", use velocity matching
     if(argc > 1 && strcmp(argv[1], "-v") == 0){
         steeringBehavior = new VelocityMatching(window);
 
@@ -70,11 +68,23 @@ int main(int argc, char *argv[])
     fadeBreadcrumbs = steeringBehavior->fadeBreadcrumbs;
     drawID = steeringBehavior->drawID;
 
+    float windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
+    
+    float spriteScaleFactor = 2.0f*windowSizeFactor;
+    if (spriteScaleFactor > 1.5f) {
+        spriteScaleFactor = 1.5f;
+    }else if (spriteScaleFactor < 0.5f){
+        spriteScaleFactor = 0.5f;
+    }
+
+
+    // initialize the boids
     for(int i = 0; i < numBoids; i++){
 
-        Boid * sprite = new Boid(numBreadCrumbs);
+        Boid * sprite = new Boid(numBreadCrumbs, spriteScaleFactor);
 
         sprite->setTexture(texture);
+        sprite->setScale(2.0f*spriteScaleFactor, 2.0f*spriteScaleFactor);
         sprite->setPosition(rand() % (int)window.getSize().x, rand() % (int)window.getSize().y);
         sprite->linearVelocity = 0.05f*sf::Vector2f(rand() % 10 - 5, rand() % 10 - 5);
         sprite->setRotation(rand() % 360);
@@ -83,14 +93,19 @@ int main(int argc, char *argv[])
 
     }
 
+    // frames per update
     int updateFrames = 1000/targetFPS;
 
-    // create spriteUpdater
-    BasicThreadPool * updater = new BasicThreadPool(8);
-
+    // initialize a thread pool
+    BasicThreadPool * updater = NULL;
+    if (numThreads > 1){
+        updater = new BasicThreadPool(8);
+    }
+    
     while (window.isOpen())
     {
 
+        // check for mouse events (used by arive and align)
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -102,17 +117,19 @@ int main(int argc, char *argv[])
             
         }
 
-        // *elapsedTime = clock.getElapsedTime().asMilliseconds();
-
+        // if enough time has passed, update the boids
         if (clock.getElapsedTime().asMilliseconds() > updateFrames)
         {
-
-            for(auto s : boids){
-
-                updater->addUpdateJob(*steeringBehavior, *s, clock.getElapsedTime().asMilliseconds());
-                
+            if(numThreads > 1){
+                for(auto s : boids){
+                    updater->addUpdateJob(*steeringBehavior, *s, clock.getElapsedTime().asMilliseconds());
+                }
             }
-
+            else{
+                for(auto s : boids){
+                    steeringBehavior->updateSprite(*s, clock.getElapsedTime().asMilliseconds() );;
+                }
+            }
             steeringBehavior->postUpdate();
             
             clock.restart();
@@ -124,7 +141,6 @@ int main(int argc, char *argv[])
         if (drawBreadcrumbs)
         {
             for(auto s : boids){
-                // *s.drawBreadcrumbs(window, fadeBreadcrumbs);
                 s->drawBreadcrumbs(window, fadeBreadcrumbs);
                 window.draw(*s);
             }
@@ -133,7 +149,6 @@ int main(int argc, char *argv[])
         if (drawID)
         {
             for(auto s : boids){
-                // s.drawID(window);
                 s->drawID(window);
                 window.draw(*s);
             }

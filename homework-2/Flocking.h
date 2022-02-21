@@ -22,6 +22,9 @@ private:
     float cohesionWeight;
     float windowWeight;
 
+    float windowRepulsionRadius;
+    float windowSizeFactor;
+
 public:
 
     Flocking(sf::RenderWindow& window, std::list<Boid*>& allBoids)
@@ -37,20 +40,26 @@ public:
         drawID = false;
         // end of user values
 
+        // Speed and radius variables are roughly scaled to window size so that flocking behavior is (mostly) consistent across resolutions
+        windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
 
-        visionRadius = 80.0f;
-        separationRadius = 20.0f;
-        maxSpeed = 0.3f;
-        maxChange = 0.01f; // Basically acceleration
+        visionRadius = 90.0f * windowSizeFactor;
+        separationRadius = 40.0f * windowSizeFactor;
+        maxSpeed = 0.3f * windowSizeFactor;
+        maxChange = 0.01f * windowSizeFactor; // Basically acceleration
 
-        alignmentWeight = 1.0f;
+        alignmentWeight = 1.2f;
         separationWeight = 0.8f;
         cohesionWeight = 0.75f;
+        
+        windowRepulsionRadius = 75.0f * windowSizeFactor;
+        windowWeight = 0.015f * windowSizeFactor;
 
     }
 
+    // Returns a list of all boids within the vision radius not including the boid itself
     std::list<Boid> getNeighbors(Boid& boid)
-    {   // Returns a list of all boids within the vision radius not including the boid itself
+    {  
         std::list<Boid> neighbors;
         for (auto s : *allBoids)
         {
@@ -69,7 +78,7 @@ public:
 
     }
 
-    // Doesn't seem to work great
+    // align the boid to the average heading of its neighbors
     sf::Vector2f getAlignment(Boid& boid, std::list<Boid>& neighbors)
     {
         // sf::Vector2f alignment = boid.getPosition();
@@ -83,6 +92,7 @@ public:
         return alignment;
     }
 
+    // move the boid towards the center of the neighbors
     sf::Vector2f getCohesion(Boid& boid, std::list<Boid>& neighbors)
     {
         sf::Vector2f cohesion(0.0f, 0.0f);
@@ -95,6 +105,7 @@ public:
         return cohesion - boid.getPosition();
     }
 
+    // move the boid away from the neighbors (within a radius)
     sf::Vector2f getSeparation(Boid& boid, std::list<Boid>& neighbors)
     {
         sf::Vector2f separation(0.0f, 0.0f);
@@ -150,7 +161,8 @@ public:
 
         sprite.linearVelocity += change;
 
-        sprite.repulseOffWalls(*window, 0.01f, 75.0f);
+        // Gently keep the boid within the window
+        sprite.repulseOffWalls(*window, windowWeight, windowRepulsionRadius);
 
         if (magnitude(sprite.linearVelocity) > maxSpeed)
         {

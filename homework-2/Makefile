@@ -1,16 +1,11 @@
-all: clean Sprites multiSprites
-
-Sprites: Sprites.o 
-	g++ Sprites.o -o Sprites -lsfml-graphics -lsfml-window -lsfml-system
-
-Sprites.o: Sprites.cpp
-	g++ -c Sprites.cpp
+all: clean Main
 
 clean:
-	rm -f *.o Sprites multiSprites
+	rm -f *.o Main
 
-multiSprites: multiSprites.o 
-	g++  multiSprites.o -o multiSprites -lsfml-graphics -lsfml-window -lsfml-system -pthread
+Main: Main.o 
+	g++  Main.o -o Main -lsfml-graphics -lsfml-window -lsfml-system -pthread
 
-multiSprites.o: multiSprites.cpp
-	g++ -c multiSprites.cpp
+Main.o: Main.cpp
+	g++ -c Main.cpp
+
