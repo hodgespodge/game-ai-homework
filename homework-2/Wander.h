@@ -24,7 +24,7 @@ public:
         this->window = &window;
 
         // set the default user values
-        numBoids = 1;
+        numBoids = 40;
         numBreadCrumbs = 50;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;

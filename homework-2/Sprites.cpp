@@ -96,6 +96,8 @@ int main(int argc, char *argv[])
         {
 
             // update each sprite using the steering behavior
+
+            // Should I try and multithread this???
             for(auto s : boids){
                 
                 steeringBehavior->updateSprite(*s, clock.getElapsedTime().asMilliseconds() );
