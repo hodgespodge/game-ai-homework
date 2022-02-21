@@ -19,7 +19,7 @@ This homework project's code is located in the following files:
 - [VelocityMatching.h](/VelocityMatching.h)
   - Steering behavior for matching the velocity of mouse movement
   - Uses postUpdate function to calculate mouse velocity
-  - 
+  
 - [Wander.h](/Wander.h)
   - Steering Behavior for wandering
   - My own design for wander behavior
