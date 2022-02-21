@@ -9,19 +9,22 @@
 #include "Wander.h"
 #include "Flocking.h"
 #include "Boid.h"
-// #include "pthread.h"
 #include "BasicThreadPool.h"
-// #include <functional>
-#include <typeinfo>
 
 int main(int argc, char *argv[])
 {
 
-    // int windowWidth = 640;
-    // int windowHeight = 480;
+    // set values here ------------------------------------------------------
 
-    int windowWidth = 1920;
-    int windowHeight = 1080;
+    int windowWidth = 640;
+    int windowHeight = 480;
+
+    // int windowWidth = 1920;
+    // int windowHeight = 1080;
+    int targetFPS = 40;
+    int numThreads = 1;
+
+    // end of user values ---------------------------------------------------
 
     sf::Clock clock;
     sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Demonstrating Steering Behavior");
@@ -33,13 +36,11 @@ int main(int argc, char *argv[])
 
     std::list<Boid*> boids;
 
-    int targetFPS = 40;
     int numBreadCrumbs;
     int numBoids;
     bool drawBreadcrumbs;
     bool fadeBreadcrumbs;
     bool drawID;
-    int numThreads = 1;
 
     SteeringBehavior* steeringBehavior = NULL;
 

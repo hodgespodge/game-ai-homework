@@ -37,13 +37,13 @@ public:
     {
         this->window = &window;
 
-        // set the default user values
+        // set the default user values ---------------------------------------------------
         numBoids = 1;
         numBreadCrumbs = 20;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;
         drawID = false;
-        // end of user values
+        // end of user values ------------------------------------------------------------
 
         windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
 

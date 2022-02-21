@@ -21,13 +21,13 @@ public:
         this->window = &window;
         previousMousePosition = sf::Mouse::getPosition(window);
         
-        // set the default user values
+        // set the default user values ---------------------------------------------------
         numBoids = 10;
         numBreadCrumbs = 0;
         drawBreadcrumbs = false;
         fadeBreadcrumbs = false;
-        drawID = false;
-        // end of user values
+        drawID = false; 
+        // end of user values ------------------------------------------------------------
         
     }
 

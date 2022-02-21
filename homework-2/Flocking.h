@@ -32,13 +32,13 @@ public:
         this->window = &window;
         this->allBoids = &allBoids;
 
-        // set the default user values
-        numBoids = 100;
+        // set the default user values ---------------------------------------------------
+        numBoids = 50;
         numBreadCrumbs = 5;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;
         drawID = false;
-        // end of user values
+        // end of user values ------------------------------------------------------------
 
         // Speed and radius variables are roughly scaled to window size so that flocking behavior is (mostly) consistent across resolutions
         windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;

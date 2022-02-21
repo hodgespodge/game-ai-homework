@@ -16,27 +16,35 @@ private:
     int updateCount;
     sf::Vector2f TargetPosition;
     float windowSizeFactor;
+    int updatesPerRetargetting;
+
+    float maxAcceleration ;
+    float maxSpeed ;
+    float targetRadius ;
 
 public:
-
-    int updatesPerRetargetting = 100;
 
     // Constructor
     Wander(sf::RenderWindow& window)
     {
         this->window = &window;
 
-        // set the default user values
+        // set the default user values ---------------------------------------------------
         numBoids = 1;
         numBreadCrumbs = 100;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;
         drawID = false;
-        // end of user values
+        // end of user values ------------------------------------------------------------
 
         updatesPerRetargetting = 100;
 
         windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
+
+
+        maxAcceleration = 0.0005f * windowSizeFactor;
+        maxSpeed = 0.4f * windowSizeFactor;
+        targetRadius = 10.0f * windowSizeFactor;
 
 
         // Initialize target position to the center of the window
@@ -47,35 +55,40 @@ public:
  
     }
 
+    void retarget()
+    {
+        // Randomly pick a new target position
+        TargetPosition = sf::Vector2f(rand() % window->getSize().x, rand() % window->getSize().y);
+        updateCount = 0;
+    }
+
     void updateSprite(Boid& sprite, float elapsedTime)
     {
-        
-        updateCount++;
 
-        sprite.updateBreadcrumbs();
-
-        float maxAcceleration = 0.0005f * windowSizeFactor;
-        float maxSpeed = 0.4f * windowSizeFactor;
-
-        if (updateCount > updatesPerRetargetting)
-        {
-            // set targetPosition to a random position on the screen
-            TargetPosition = sf::Vector2f(rand() % window->getSize().x, rand() % window->getSize().y);
-            updateCount = 0;
-
-        }        
+        sprite.updateBreadcrumbs();    
 
         sf::Vector2f direction = TargetPosition - sprite.getPosition();
-        direction = unitVector(direction);
 
-        // if linearVelocity magnitude is less than maxSpeed, add acceleration
+        // If we are within the radius of the target, then we will retarget and continue to move in the same direction
+        if (magnitude(direction) < targetRadius)
+        {
+            retarget();
+            direction = unitVector(sprite.linearVelocity);
+
+        }
+        // Otherwise move towards the target
+        else{
+            direction = unitVector(direction);
+        }
+
+
         if (magnitude(sprite.linearVelocity) < maxSpeed)
         {
             sprite.linearAcceleration = direction * maxAcceleration;
         } else {
             sprite.linearAcceleration = unitVector(sprite.linearVelocity) * -maxAcceleration;
         }
-
+        
         sprite.updateLinearVelocity(elapsedTime, maxSpeed);
         sprite.bounceOffWalls(*window, 0.8f);
         sprite.updatePosition(elapsedTime);
@@ -85,6 +98,13 @@ public:
     } 
     void postUpdate()
     {
+        updateCount++;
+
+        if (updateCount > updatesPerRetargetting)
+        {
+            // set targetPosition to a random position on the screen
+            retarget();
+        }   
 
     }
     void checkEvent(sf::Event event) // not used
