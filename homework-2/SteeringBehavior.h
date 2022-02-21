@@ -9,6 +9,8 @@ class SteeringBehavior
 {
 public:
 
+    
+
     int numBreadCrumbs = 10;
     int numBoids;
     bool drawBreadcrumbs = false;
@@ -18,6 +20,7 @@ public:
     virtual void updateSprite( Boid& sprite, float elapsedTime) = 0;
     virtual void postUpdate() = 0;
     virtual void checkEvent(sf::Event event) = 0;
+    virtual std::string getName() = 0;
 };
 
 

@@ -181,6 +181,10 @@ public:
     {
     }
 
+    std::string getName()
+    {
+        return "ArriveAndAlign";
+    }
 };
 
 

@@ -30,7 +30,7 @@ public:
         this->allBoids = &allBoids;
 
         // set the default user values
-        numBoids = 35;
+        numBoids = 100;
         numBreadCrumbs = 5;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;
@@ -169,7 +169,10 @@ public:
     {
     }
 
-
+    std::string getName()
+    {
+        return "Flocking";
+    }
 
 
 };  

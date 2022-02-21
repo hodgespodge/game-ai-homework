@@ -60,6 +60,11 @@ public:
     {
     }
 
+    std::string getName()
+    {
+        return "Velocity Matching";
+    }
+
 };
 
 #endif

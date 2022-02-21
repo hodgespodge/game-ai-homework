@@ -9,6 +9,10 @@
 #include "Wander.h"
 #include "Flocking.h"
 #include "Boid.h"
+// #include "pthread.h"
+#include "BasicThreadPool.h"
+// #include <functional>
+#include <typeinfo>
 
 int main(int argc, char *argv[])
 {
@@ -28,6 +32,10 @@ int main(int argc, char *argv[])
     }
 
     std::list<Boid*> boids;
+
+    // create elapsedTime pointer
+    // int *elapsedTime = new int;
+
     int targetFPS = 40;
     int numBreadCrumbs;
     int numBoids;
@@ -52,7 +60,6 @@ int main(int argc, char *argv[])
      
     } else {
         steeringBehavior = new Flocking(window, boids);
-
     }
 
     printf("Using steering behavior: %s\n", steeringBehavior->getName().c_str());
@@ -78,6 +85,9 @@ int main(int argc, char *argv[])
 
     int updateFrames = 1000/targetFPS;
 
+    // create spriteUpdater
+    BasicThreadPool * updater = new BasicThreadPool(8);
+
     while (window.isOpen())
     {
 
@@ -92,15 +102,15 @@ int main(int argc, char *argv[])
             
         }
 
+        // *elapsedTime = clock.getElapsedTime().asMilliseconds();
+
         if (clock.getElapsedTime().asMilliseconds() > updateFrames)
         {
 
-            // update each sprite using the steering behavior
-
-            // Should I try and multithread this???
             for(auto s : boids){
+
+                updater->addUpdateJob(*steeringBehavior, *s, clock.getElapsedTime().asMilliseconds());
                 
-                steeringBehavior->updateSprite(*s, clock.getElapsedTime().asMilliseconds() );
             }
 
             steeringBehavior->postUpdate();

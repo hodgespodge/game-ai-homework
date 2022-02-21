@@ -86,6 +86,11 @@ public:
     {
     }
 
+    std::string getName()
+    {
+        return "Wander";
+    }
+
 };
 
 #endif
