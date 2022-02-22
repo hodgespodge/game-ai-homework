@@ -86,6 +86,13 @@ public:
         }
     }
 
+    void snapVelocityToAngle()
+    {
+        
+        linearVelocity = sf::Vector2f(cos(getRotation() * 3.14159f / 180.0f), sin(getRotation() * 3.14159f / 180.0f)) * magnitude(linearVelocity);
+        
+    }
+
     void bounceOffWalls(sf::RenderWindow& window){
         bounceOffWalls(window, 100.0f);
     }
@@ -99,7 +106,7 @@ public:
 
         if (position.x < 0)
         {
-            position.x = 1;
+            // position.x = 1;
 
             if (linearVelocity.x < 0)
             {
@@ -108,7 +115,7 @@ public:
         }
         else if (position.x > windowWidth)
         {
-            position.x = windowWidth - 1;
+            // position.x = windowWidth - 1;
 
             if (linearVelocity.x > 0)
             {
@@ -118,7 +125,7 @@ public:
 
         if (position.y < 0)
         {
-            position.y = 1;
+            // position.y = 1;
             if(linearVelocity.y < 0)
             {
                 linearVelocity.y *= -bounceFactor;
@@ -127,7 +134,7 @@ public:
         }
         else if (position.y > windowHeight)
         {
-            position.y = windowHeight - 1;
+            // position.y = windowHeight - 1;
             if (linearVelocity.y > 0)
             {
                 linearVelocity.y *= -bounceFactor;
@@ -161,6 +168,31 @@ public:
         {
             linearVelocity.y += -repulsion;
             linearVelocity.x += 0.5*(linearVelocity.x / abs(linearVelocity.x)) *  repulsion;;
+        }
+    }
+
+    void teleportBetweenWalls(sf::RenderWindow& window)
+    {
+        int windowWidth = window.getSize().x;
+        int windowHeight = window.getSize().y;
+        sf::Vector2f position = getPosition();
+
+        if (position.x < 0)
+        {
+            setPosition(sf::Vector2f(windowWidth, position.y));
+        }
+        else if (position.x > windowWidth)
+        {
+            setPosition(sf::Vector2f(0, position.y));
+        }
+
+        if (position.y < 0)
+        {
+            setPosition(sf::Vector2f(position.x, windowHeight));
+        }
+        else if (position.y > windowHeight)
+        {
+            setPosition(sf::Vector2f(position.x, 0));
         }
     }
 

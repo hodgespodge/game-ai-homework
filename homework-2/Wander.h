@@ -13,14 +13,16 @@ class Wander : public SteeringBehavior
 {
 private:
     sf::RenderWindow* window;
-    int updateCount;
-    sf::Vector2f TargetPosition;
     float windowSizeFactor;
-    int updatesPerRetargetting;
 
-    float maxAcceleration ;
-    float maxSpeed ;
-    float targetRadius ;
+    bool wheelOfFortune;
+    int spinTime;
+    int spinTimeMax;
+    float maxSpinSpeed;
+
+    int driveTime;
+    int driveTimeMax;
+    float maxDriveSpeed;
 
 public:
 
@@ -31,26 +33,23 @@ public:
 
         // set the default user values ---------------------------------------------------
         numBoids = 1;
-        numBreadCrumbs = 100;
+        numBreadCrumbs = 200;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;
         drawID = false;
         // end of user values ------------------------------------------------------------
 
-        updatesPerRetargetting = 100;
-
         windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
 
+        wheelOfFortune = false;
 
-        maxAcceleration = 0.0005f * windowSizeFactor;
-        maxSpeed = 0.4f * windowSizeFactor;
-        targetRadius = 10.0f * windowSizeFactor;
+        spinTime = 0; 
+        spinTimeMax = 5000;
+        maxSpinSpeed = 3.0f;
 
-
-        // Initialize target position to the center of the window
-        TargetPosition = sf::Vector2f(window.getSize().x / 2, window.getSize().y / 2);
-
-        updateCount = 0;
+        driveTime = 0;
+        driveTimeMax = 1500;
+        maxDriveSpeed = 0.3f;
         
  
     }
@@ -58,8 +57,11 @@ public:
     void retarget()
     {
         // Randomly pick a new target position
-        TargetPosition = sf::Vector2f(rand() % window->getSize().x, rand() % window->getSize().y);
-        updateCount = 0;
+        wheelOfFortune = true;
+        
+        // set spinTime to a random number between 0 and 150
+        spinTime = rand() % 500;
+
     }
 
     void updateSprite(Boid& sprite, float elapsedTime)
@@ -67,44 +69,45 @@ public:
 
         sprite.updateBreadcrumbs();    
 
-        sf::Vector2f direction = TargetPosition - sprite.getPosition();
+    
 
-        // If we are within the radius of the target, then we will retarget and continue to move in the same direction
-        if (magnitude(direction) < targetRadius)
-        {
-            retarget();
-            direction = unitVector(sprite.linearVelocity);
+        if (wheelOfFortune){
+            spinTime += elapsedTime;
+            sprite.updateAngle(elapsedTime);
 
-        }
-        // Otherwise move towards the target
-        else{
-            direction = unitVector(direction);
-        }
+            if (spinTime > spinTimeMax){
+                wheelOfFortune = false;
+                sprite.angularVelocity = 0;
+                
+            }else{
+                sprite.angularVelocity = (float)(spinTimeMax - spinTime)/1000;
+                if (sprite.angularVelocity > maxSpinSpeed){
+                    sprite.angularVelocity = maxSpinSpeed;
+                }
+            }
+        }else{
+            driveTime += elapsedTime;
+            sprite.updatePosition(elapsedTime);
+            sprite.teleportBetweenWalls(*window);
 
 
-        if (magnitude(sprite.linearVelocity) < maxSpeed)
-        {
-            sprite.linearAcceleration = direction * maxAcceleration;
-        } else {
-            sprite.linearAcceleration = unitVector(sprite.linearVelocity) * -maxAcceleration;
-        }
+            if (driveTime > driveTimeMax){
+                driveTime = rand() % 500;
+                retarget();
+            }else{
+                sprite.linearVelocity = sf::Vector2f(1,1) * (float)(driveTimeMax - driveTime)/ 1000.0f;
+                sprite.snapVelocityToAngle();
+                if (magnitude(sprite.linearVelocity) > maxDriveSpeed){
+                    sprite.linearVelocity = sprite.linearVelocity / magnitude(sprite.linearVelocity) * maxDriveSpeed;
+                }
+            }
         
-        sprite.updateLinearVelocity(elapsedTime, maxSpeed);
-        sprite.bounceOffWalls(*window, 0.8f);
-        sprite.updatePosition(elapsedTime);
-        sprite.snapAngleToVelocity();
+        }
         
         
     } 
     void postUpdate()
     {
-        updateCount++;
-
-        if (updateCount > updatesPerRetargetting)
-        {
-            // set targetPosition to a random position on the screen
-            retarget();
-        }   
 
     }
     void checkEvent(sf::Event event) // not used

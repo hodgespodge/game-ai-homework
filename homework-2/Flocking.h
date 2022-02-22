@@ -44,13 +44,13 @@ public:
         windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
 
         visionRadius = 90.0f * windowSizeFactor;
-        separationRadius = 40.0f * windowSizeFactor;
+        separationRadius = 60.0f * windowSizeFactor;
         maxSpeed = 0.3f * windowSizeFactor;
-        maxChange = 0.01f * windowSizeFactor; // Basically acceleration
+        maxChange = 0.015f * windowSizeFactor; // Basically acceleration
 
-        alignmentWeight = 1.2f;
-        separationWeight = 0.8f;
-        cohesionWeight = 0.75f;
+        alignmentWeight = 6.0f * windowSizeFactor;
+        separationWeight = 0.8f * windowSizeFactor;
+        cohesionWeight = 0.75f * windowSizeFactor;
         
         windowRepulsionRadius = 75.0f * windowSizeFactor;
         windowWeight = 0.015f * windowSizeFactor;

@@ -26,7 +26,7 @@ private:
     float angularTargetRadius; // when to stop rotating
     float angularSlowRadius; // not a true radius, but a threshold for when to slow angular motion
 
-    float timeToAngularTarget;
+    // float timeToAngularTarget;
 
     float windowSizeFactor;
 
@@ -39,7 +39,7 @@ public:
 
         // set the default user values ---------------------------------------------------
         numBoids = 1;
-        numBreadCrumbs = 20;
+        numBreadCrumbs = 40;
         drawBreadcrumbs = true;
         fadeBreadcrumbs = true;
         drawID = false;
@@ -47,25 +47,20 @@ public:
 
         windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
 
-
         isTargetSet = false;
         TargetPosition = sf::Vector2f(0,0);
 
-        maxSpeed = 0.5f * windowSizeFactor; // 1 is plenty fast
+        maxSpeed = 0.5f * windowSizeFactor; 
         maxAcceleration = 0.005f * windowSizeFactor;
         
         linearTargetRadius = 25.0f * windowSizeFactor;
-        linearSlowRadius = 150.0f * windowSizeFactor;
+        linearSlowRadius = 300.0f * windowSizeFactor;
 
-        timeToLinearTarget = 0.1f * windowSizeFactor;
+        maxRotation = 0.05f;
+        maxAngularAcceleration = 0.0005f;
 
-        maxRotation = 0.5f * windowSizeFactor;
-        maxAngularAcceleration = 0.00045f * windowSizeFactor;
-
-        angularTargetRadius = 10.0f * windowSizeFactor;
-        angularSlowRadius = 90.0f * windowSizeFactor;
-
-        timeToAngularTarget = timeToLinearTarget;
+        angularTargetRadius = 10.0f ;
+        angularSlowRadius = 90.0f ;
 
     }
 
@@ -101,7 +96,6 @@ public:
             sf::Vector2f targetVelocity = unitVector(direction) * targetSpeed;
 
             sf::Vector2f linearAcceleration = targetVelocity - sprite.linearVelocity;
-            // linearAcceleration /= timeToLinearTarget;
 
             if (magnitude(linearAcceleration) > maxAcceleration)
             {
@@ -147,7 +141,7 @@ public:
             targetRotation *= rotation / rotationSize;
 
             sprite.angularAcceleration = targetRotation - sprite.angularVelocity;
-            sprite.angularAcceleration /= timeToAngularTarget;
+            // sprite.angularAcceleration /= timeToAngularTarget;
 
             if(abs(sprite.angularAcceleration) > maxAngularAcceleration){
                 sprite.angularAcceleration /= abs(sprite.angularAcceleration);

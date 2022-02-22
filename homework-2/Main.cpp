@@ -16,11 +16,11 @@ int main(int argc, char *argv[])
 
     // set values here ------------------------------------------------------
 
-    int windowWidth = 640;
-    int windowHeight = 480;
+    // int windowWidth = 640;
+    // int windowHeight = 480;
 
-    // int windowWidth = 1920;
-    // int windowHeight = 1080;
+    int windowWidth = 1920;
+    int windowHeight = 1080;
     int targetFPS = 40;
     int numThreads = 1;
 
