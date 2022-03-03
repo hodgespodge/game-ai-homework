@@ -16,15 +16,8 @@
 // and cost is the cost of the edge
 //
 // Return an array of Nodes
-std::vector<Node*> buildGraph(std::string edgesFile, std::string numNodesFile){
-    // Read in the number of nodes
-    std::ifstream numNodesFileStream(numNodesFile);
-    int numNodes;
-    numNodesFileStream >> numNodes;
-    numNodesFileStream.close();
 
-    // print out the number of nodes
-    std::cout << "Number of nodes: " << numNodes << std::endl;
+std::vector<Node*> buildGraph(std::string edgesFile, int numNodes){
     std::vector<Node*> graph;
 
     // Initialize the graph with neighborless nodes
@@ -57,7 +50,21 @@ std::vector<Node*> buildGraph(std::string edgesFile, std::string numNodesFile){
     edgesFileStream.close();
 
     return graph;
+}
+
+std::vector<Node*> buildGraph(std::string edgesFile, std::string numNodesFile){
+    // Read in the number of nodes
+    std::ifstream numNodesFileStream(numNodesFile);
+    int numNodes;
+    numNodesFileStream >> numNodes;
+    numNodesFileStream.close();
+
+    // print out the number of nodes
+    std::cout << "Number of nodes: " << numNodes << std::endl;
+    
+    return buildGraph(edgesFile, numNodes);
 
 }
+
 
 #endif
