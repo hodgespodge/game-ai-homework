@@ -21,7 +21,7 @@ def digraph(n, m, min_weight=1, max_weight=10, allow_self_loops=False):
             print("Too many edges")
             return
 
-    elif m > n*(n-1)/2:
+    elif m > n*(n-1):
         print("Too many edges")
         return
 
@@ -29,7 +29,7 @@ def digraph(n, m, min_weight=1, max_weight=10, allow_self_loops=False):
     # Create a list of n nodes
     nodes = [i for i in range(n)]
 
-    # Create a set of edges
+    # Create a set of edges (without costs)
     edges = set()
 
     while len(edges) < m:
@@ -39,10 +39,16 @@ def digraph(n, m, min_weight=1, max_weight=10, allow_self_loops=False):
         if not allow_self_loops and node1 == node2:
             continue
 
-        edges.add((node1, node2, random.randint(min_weight, max_weight)))
+        edges.add((node1, node2))
+
+    edges_with_costs = []
+    # For each edge, pick a random cost
+    for edge in edges:
+        cost = random.randint(min_weight, max_weight)
+        edges_with_costs.append((edge[0], edge[1], cost))
 
     # Return the list of edges
-    return edges
+    return edges_with_costs
 
 
 def main():
@@ -57,9 +63,9 @@ def main():
         allow_self_loops = True
 
     if allow_self_loops:
-        print("Max number of edges allowed: ",(int) (n + (n*(n-1)/2)))
+        print("Max number of edges allowed: ",(int) (n + (n*(n-1))))
     else:
-        print("Max number of edges allowed: ",(int) (n*(n-1)/2))
+        print("Max number of edges allowed: ",(int) (n*(n-1)))
 
     m = int(input("Enter number of edges: "))
 
