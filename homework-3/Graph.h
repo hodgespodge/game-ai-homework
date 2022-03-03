@@ -1,10 +1,10 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <vector>
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #include "Node.h"
 
@@ -15,39 +15,49 @@
 // where node1 and node2 are the ids of the nodes
 // and cost is the cost of the edge
 //
-// Return a vector of Nodes
-std::vector<Node*> buildGraph(std::string filename){
+// Return an array of Nodes
+std::vector<Node*> buildGraph(std::string edgesFile, std::string numNodesFile){
+    // Read in the number of nodes
+    std::ifstream numNodesFileStream(numNodesFile);
+    int numNodes;
+    numNodesFileStream >> numNodes;
+    numNodesFileStream.close();
+
+    // print out the number of nodes
+    std::cout << "Number of nodes: " << numNodes << std::endl;
     std::vector<Node*> graph;
-    std::ifstream file(filename);
-    std::string line;
-    std::string delimiter = ",";
-    int node1, node2, cost;
 
-    while(std::getline(file, line)){
-        std::stringstream ss(line);
-        std::string token;
-        int i = 0;
-        while(std::getline(ss, token, delimiter[0])){
-            if(i == 0){
-                node1 = std::stoi(token);
-            }
-            else if(i == 1){
-                node2 = std::stoi(token);
-            }
-            else if(i == 2){
-                cost = std::stoi(token);
-            }
-            i++;
-        }
-
-        Node* n1 = new Node(node1);
-        Node* n2 = new Node(node2);
-        n1->addNeighbor(n2, cost);
-        n2->addNeighbor(n1, cost);
-        graph.push_back(n1);
-        graph.push_back(n2);
+    // Initialize the graph with neighborless nodes
+    for(int i = 0; i < numNodes; i++){
+        graph.push_back(new Node(i));
     }
+
+    // Read in the edges
+    std::ifstream edgesFileStream(edgesFile);
+    std::string line;
+
+    // Read in each line as ints
+    // The line is of the form: "node1,node2,cost"
+    while(std::getline(edgesFileStream, line)){
+        std::stringstream lineStream(line);
+        std::string node1;
+        std::string node2;
+        std::string cost;
+        std::getline(lineStream, node1, ',');
+        std::getline(lineStream, node2, ',');
+        std::getline(lineStream, cost, ',');
+        int node1Int = std::stoi(node1);
+        int node2Int = std::stoi(node2);
+        int costInt = std::stoi(cost);
+
+        // Add the edge to the graph
+        graph[node1Int]->addNeighbor(graph[node2Int], costInt);
+    }
+
+    edgesFileStream.close();
+
     return graph;
+
 }
 
 #endif

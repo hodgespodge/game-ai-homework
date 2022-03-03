@@ -72,6 +72,7 @@ def main():
     min_weight = 1
     max_weight = 10
     outputCSV = "digraph.csv"
+    numNodesCSV = "numNodes.csv"
 
     edges = digraph(n, m, min_weight, max_weight, allow_self_loops)
 
@@ -82,6 +83,9 @@ def main():
 
     f.close()
 
+    with open(numNodesCSV, "w") as f:
+        f.write(str(n))
+    f.close()
 
 if __name__ == '__main__':
     main()
