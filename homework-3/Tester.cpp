@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
 
     // Read in a CSV list of edges and build a graph using Graph.h
-    std::vector<Node*> graph = buildGraph("digraph.csv", "numNodes.csv");
+    std::vector<Node*> graph = buildGraph("graphFiles/digraph.csv", "graphFiles/numNodes.csv");
 
     // Print out each node and the edges to each neighbor
     for(int i = 0; i < graph.size(); i++){

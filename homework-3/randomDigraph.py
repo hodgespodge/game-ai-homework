@@ -71,8 +71,8 @@ def main():
 
     min_weight = 1
     max_weight = 10
-    outputCSV = "digraph.csv"
-    numNodesCSV = "numNodes.csv"
+    outputCSV = "graphFiles/digraph.csv"
+    numNodesCSV = "graphFiles/numNodes.csv"
 
     edges = digraph(n, m, min_weight, max_weight, allow_self_loops)
 
