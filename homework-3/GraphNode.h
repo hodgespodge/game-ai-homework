@@ -19,10 +19,14 @@ class GraphNode
         float h; //The heuristic cost from this node to the goal node
         GraphNode* parent; //The parent of this node in the search tree
         bool visited; //Whether or not this node has been visited
+        int x;
+        int y;
 
         // Constructor
-        GraphNode(int id){
+        GraphNode(int id, int x, int y){
             this->id = id;
+            this->x = x;
+            this->y = y;
             this->g = INF;
             this->h = INF;
             parent = NULL;
@@ -36,13 +40,9 @@ class GraphNode
 
         // calling the destructor will delete the entire graph I believe
         ~GraphNode(){
-            // delete each neighbor object
-            for(auto it = neighbors.begin(); it != neighbors.end(); ++it){
-                delete it->second;
-            }
             neighbors.clear();
-            delete parent;
-
+            parent = NULL;
+            
         }
 
         float f()

@@ -17,16 +17,34 @@
 //
 // Return an array of Nodes
 
-std::vector<GraphNode*> buildGraph(std::string edgesFile, int numNodes){
+std::vector<GraphNode*> buildGraph(std::string edgesFile, std::string nodesFile ){
     std::vector<GraphNode*> graph;
 
-    // Initialize the graph with neighborless nodes
-    for(int i = 0; i < numNodes; i++){
-        graph.push_back(new GraphNode(i));
+    // Read in each line of the nodes file as an int
+    // The line is of the form: "nodeID, x, y"
+    std::ifstream nodesFileStream(nodesFile);
+    std::string line;
+    while (std::getline(nodesFileStream, line))
+    {
+        std::stringstream lineStream(line);
+        std::string node;
+        std::string x;
+        std::string y;
+
+        std::getline(lineStream, node, ',');
+        std::getline(lineStream, x, ',');
+        std::getline(lineStream, y, ',');
+
+        int id = std::stoi(node);
+        float xCoord = std::stof(x);
+        float yCoord = std::stof(y);
+
+        graph.push_back(new GraphNode(id, xCoord, yCoord));
     }
+ 
     // Read in the edges
     std::ifstream edgesFileStream(edgesFile);
-    std::string line;
+    // std::string line;
 
     // Read in each line as ints
     // The line is of the form: "node1,node2,cost"
@@ -50,20 +68,5 @@ std::vector<GraphNode*> buildGraph(std::string edgesFile, int numNodes){
     edgesFileStream.close();
     return graph;
 }
-
-std::vector<GraphNode*> buildGraph(std::string edgesFile, std::string numNodesFile){
-    // Read in the number of nodes
-    std::ifstream numNodesFileStream(numNodesFile);
-    int numNodes;
-    numNodesFileStream >> numNodes;
-    numNodesFileStream.close();
-
-    // print out the number of nodes
-    std::cout << "Number of nodes: " << numNodes << std::endl;
-    
-    return buildGraph(edgesFile, numNodes);
-
-}
-
 
 #endif

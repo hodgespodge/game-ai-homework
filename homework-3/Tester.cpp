@@ -1,19 +1,30 @@
-#include "GraphNode.h"
 #include <vector>
-#include "Graph.h"
 #include <iostream>
-#include "SearchFunctions.h"
 #include <functional>
 #include <string>
 #include <sys/stat.h>
+#include <chrono>
+#include <cctype>
 
+#include "GraphNode.h"
+#include "Graph.h"
+#include "SearchFunctions.h"
+#include "Heuristic.h"
+#include "ManyPathsHeuristic.h"
+#include "DijkstraHeuristic.h"
+#include "EuclideanHeuristic.h"
+
+enum SearchType {
+    ASTAR,
+    DIJKSTRA,
+    MANYPATHS
+};
 
 int main(int argc, char *argv[])
 {
 
-    // string = filename
-    std::string graphFile = "graphFiles/digraph.csv";
-    std::string numNodesFile = "graphFiles/numNodes.csv";
+    std::string edgesFile = "graphFiles/edges.csv";
+    std::string nodesFile = "graphFiles/nodes.csv";
 
     // create a set of flags from the command line arguments
     std::set<std::string> flags;
@@ -36,24 +47,31 @@ int main(int argc, char *argv[])
         verbose = true;
     }
 
+    SearchType searchType = DIJKSTRA; // default search type
+    if (flags.find("a") != flags.end() || flags.find("A") != flags.end())
+    {
+        searchType = ASTAR;
+    }  else if(flags.find("m") != flags.end() || flags.find("M") != flags.end())
+    {
+        searchType = MANYPATHS;
+    }
+
     // check using stat to see if the files exist
     struct stat buffer;
-    if (newGraph || stat(graphFile.c_str(), &buffer) != 0 || stat(numNodesFile.c_str(), &buffer) != 0) {
+    if (newGraph || stat(edgesFile.c_str(), &buffer) != 0 || stat(nodesFile.c_str(), &buffer) != 0) {
         
         // Call randomDigraph.py to generate the files
-        std::string command = "python3 scripts/randomDigraph.py";
+        std::string command = "python3 scripts/generateDigraph.py";
 
         // Run the command. If it fails, print an error message and exit
         if(system(command.c_str()) != 0){
-            std::cout << "Error: randomDigraph.py failed for some reason" << std::endl;
-            std::cout << "Please make sure you have python3 installed" << std::endl;
             return 1;
         }
 
     }
 
     // Read in a CSV list of edges and build a graph using Graph.h
-    std::vector<GraphNode*> graph = buildGraph(graphFile, numNodesFile);
+    std::vector<GraphNode*> graph = buildGraph(edgesFile,nodesFile);
 
     // Print out the graph if verbose is true
     // Print out each node and the edges to each neighbor
@@ -95,17 +113,82 @@ int main(int argc, char *argv[])
 
     int startID = 0;
     int goalID = graph.size() - 1;
+    
+    Heuristic* heuristic;
 
-    // Call the dijkstra search function
-    // std::vector<GraphNode*> path = dijkstraPath(startID, goalID, graph);
-    std::vector<GraphNode*> path = aStarPath(startID, goalID, graph);
+    // Get the start time
+    // Must be included in the timing block incase heuristic performs preprocessing
+    auto start = std::chrono::high_resolution_clock::now();
+
+    switch (  searchType)
+    {
+        case ASTAR:
+        {
+            std::cout << "Chosen Algorithm: A*" << std::endl;
+            heuristic = new EuclideanHeuristic(graph[goalID]);
+            break;
+        }
+        case DIJKSTRA:
+        {
+            std::cout <<"Chosen Algorithm: Dijkstra" << std::endl;
+            heuristic = new DijkstraHeuristic(graph[goalID]);
+
+            break;
+        }
+        case MANYPATHS:
+        {
+            std::cout <<"Chosen Algorithm: Many Paths" << std::endl;
+            heuristic = new ManyPathsHeuristic(graph[goalID], graph);
+
+            break;
+        }
+        default:
+        {
+            std::cout << "An error occured in the switch statement" << std::endl;
+            return 1;
+        }
+    }
+
+    std::vector<GraphNode*> path = shortestPath(startID, goalID, graph, heuristic);
+
+    // Get the end time
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Print out the time it took to execute
+    std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " milliseconds" << std::endl;
 
     std::cout << "Path from " << startID << " to " << goalID << ": ";
 
-    // Print out the path in reverse order
-    for(int i = path.size()-1; i >= 0; i--){
-        std::cout << path[i]->id << " ";
+    if (path.empty())
+    {
+        std::cout << "No path found" << std::endl;
+    } else{
+
+        // Print out the path in reverse order
+        for(int i = path.size()-1; i >= 0; i--){
+            std::cout << path[i]->id << " ";
+        }
+        std::cout << std::endl;
+
+        // Print out the total cost of the path
+        std::cout << "Total Cost: " << path.front()->g << std::endl;
+
     }
-    std::cout << std::endl;
+
+
+    // delete pointers
+    for(auto node : graph){
+        delete node;
+    }
+    graph.clear();
+
+    for(auto node : path){
+        delete node;
+    }
+    path.clear();
+
+    delete heuristic;
+
+    
 
 }
