@@ -62,12 +62,22 @@ def main():
     if response == "Y" or response == "YES":
         allow_self_loops = True
 
+    max_edges = 0
+
     if allow_self_loops:
-        print("Max number of edges allowed: ",(int) (n + (n*(n-1))))
+        max_edges = n + n*(n-1)
+        print("Max number of edges allowed: ",(int) (max_edges))
     else:
-        print("Max number of edges allowed: ",(int) (n*(n-1)))
+        max_edges = n*(n-1)
+        print("Max number of edges allowed: ",(int) (max_edges))
 
     m = int(input("Enter number of edges: "))
+
+    if m > max_edges:
+        print("Got too many edges!\nSetting number of edges to max allowed.")
+        m = max_edges
+
+    print("")
 
     min_weight = 1
     max_weight = 10

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 
-#include "Node.h"
+#include "GraphNode.h"
 
 // functions for building a graph of Nodes
 
@@ -17,12 +17,12 @@
 //
 // Return an array of Nodes
 
-std::vector<Node*> buildGraph(std::string edgesFile, int numNodes){
-    std::vector<Node*> graph;
+std::vector<GraphNode*> buildGraph(std::string edgesFile, int numNodes){
+    std::vector<GraphNode*> graph;
 
     // Initialize the graph with neighborless nodes
     for(int i = 0; i < numNodes; i++){
-        graph.push_back(new Node(i));
+        graph.push_back(new GraphNode(i));
     }
     // Read in the edges
     std::ifstream edgesFileStream(edgesFile);
@@ -51,7 +51,7 @@ std::vector<Node*> buildGraph(std::string edgesFile, int numNodes){
     return graph;
 }
 
-std::vector<Node*> buildGraph(std::string edgesFile, std::string numNodesFile){
+std::vector<GraphNode*> buildGraph(std::string edgesFile, std::string numNodesFile){
     // Read in the number of nodes
     std::ifstream numNodesFileStream(numNodesFile);
     int numNodes;
