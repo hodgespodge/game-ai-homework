@@ -2,6 +2,7 @@
 
 # Use a adjacency list representation
 
+from math import ceil
 import random
 
 
@@ -80,7 +81,7 @@ def main():
     print("")
 
     min_weight = 1
-    max_weight = 10
+    max_weight = ceil( 1 + m/n)
     outputCSV = "graphFiles/digraph.csv"
     numNodesCSV = "graphFiles/numNodes.csv"
 

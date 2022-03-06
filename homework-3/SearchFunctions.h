@@ -33,7 +33,7 @@ std::vector<GraphNode*> shortestPath(int startID, int goalID, std::vector<GraphN
     
     // Add start node to the open set
     // First value is f(n)
-    // Second value is the SearchNode itself
+    // Second value is the GraphNode itself
     open.insert(std::make_pair(start->f(), start));
 
     // While the open set is not empty
@@ -49,8 +49,30 @@ std::vector<GraphNode*> shortestPath(int startID, int goalID, std::vector<GraphN
             return reconstructPath(current);
         }
 
-        // neighbors of current node ordered by path cost from current node to neighbor
-        std::set<std::pair<int, GraphNode*>> neighbors = current->neighbors;
+        // For each neigbor in current->neighbors
+        for(auto it = current->neighbors.begin(); it != current->neighbors.end(); ++it){
+            GraphNode* neighbor = it->second;
+
+            // If the neighbor has not been visited
+            if(!neighbor->visited){
+                // Calculate the cost of the path from start to neighbor
+                float cost = current->g + it->first;
+
+                // If the cost is less than the neighbor's current cost
+                if(cost < neighbor->g){
+                    // Update the neighbor's cost
+                    neighbor->g = cost;
+                    neighbor->h = heuristic(neighbor, goal);
+                    neighbor->parent = current;
+
+                    // If the neighbor is not in the open set
+                    if(open.find(std::make_pair(neighbor->f(), neighbor)) == open.end()){
+                        // Add the neighbor to the open set
+                        open.insert(std::make_pair(neighbor->f(), neighbor));
+                    }
+                }
+            }
+        }
 
 
     }
@@ -58,5 +80,24 @@ std::vector<GraphNode*> shortestPath(int startID, int goalID, std::vector<GraphN
     // If the open set is empty, there is no path
     return std::vector<GraphNode*>();
 }
+
+float clusterHeuristic(GraphNode* start, GraphNode* goal){
+    return 0;
+}
+
+float dijkstraHeuristic(GraphNode* start, GraphNode* goal){
+    return 0;
+}
+
+// call shortestPath with the appropriate heuristic function
+std::vector<GraphNode*> aStarPath(int startID, int goalID, std::vector<GraphNode*> nodeGraph ){
+    return shortestPath(startID, goalID, nodeGraph, clusterHeuristic);
+}
+
+// call shortestPath with the appropriate heuristic function
+std::vector<GraphNode*> dijkstraPath(int startID, int goalID, std::vector<GraphNode*> nodeGraph ){
+    return shortestPath(startID, goalID, nodeGraph, dijkstraHeuristic);
+}
+
 
 #endif

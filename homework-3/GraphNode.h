@@ -34,10 +34,15 @@ class GraphNode
             neighbors.emplace(std::make_pair(cost, neighbor));
         }
 
-        // destructor
+        // calling the destructor will delete the entire graph I believe
         ~GraphNode(){
+            // delete each neighbor object
+            for(auto it = neighbors.begin(); it != neighbors.end(); ++it){
+                delete it->second;
+            }
             neighbors.clear();
-            parent = NULL;
+            delete parent;
+
         }
 
         float f()
