@@ -10,7 +10,7 @@ clean:
 # 	g++ -c Main.cpp
 
 Tester: Tester.o
-	g++ Tester.o -o Tester -lsfml-graphics -lsfml-window -lsfml-system -pthread
+	g++  -std=c++11 Tester.o -o Tester -lsfml-graphics -lsfml-window -lsfml-system -pthread
 	
 Tester.o: Tester.cpp
 	g++ -c Tester.cpp

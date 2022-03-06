@@ -24,7 +24,6 @@ std::vector<Node*> buildGraph(std::string edgesFile, int numNodes){
     for(int i = 0; i < numNodes; i++){
         graph.push_back(new Node(i));
     }
-
     // Read in the edges
     std::ifstream edgesFileStream(edgesFile);
     std::string line;
@@ -45,10 +44,10 @@ std::vector<Node*> buildGraph(std::string edgesFile, int numNodes){
 
         // Add the edge to the graph
         graph[node1Int]->addNeighbor(graph[node2Int], costInt);
+
     }
 
     edgesFileStream.close();
-
     return graph;
 }
 
