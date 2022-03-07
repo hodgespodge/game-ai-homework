@@ -3,6 +3,7 @@
 
 # include "Heuristic.h"
 # include "GraphNode.h"
+# include <cmath>
 
 class EuclideanHeuristic: public Heuristic
 {
@@ -12,7 +13,11 @@ public:
 
     float f(GraphNode* node)
     {
-        return 0;
+
+        int x_diff = node->x - goal->x;
+        int y_diff = node->y - goal->y;
+        
+        return sqrt(x_diff*x_diff + y_diff*y_diff);
     }
 
     ~EuclideanHeuristic()

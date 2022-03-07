@@ -5,8 +5,6 @@
 from math import ceil
 import random
 
-from scipy import rand
-
 # Create a graph with n nodes and m edges
 # Let there only be at most one edge between any two nodes
 # Output the graph as a list of edges

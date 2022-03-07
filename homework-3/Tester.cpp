@@ -60,6 +60,13 @@ int main(int argc, char *argv[])
     struct stat buffer;
     if (newGraph || stat(edgesFile.c_str(), &buffer) != 0 || stat(nodesFile.c_str(), &buffer) != 0) {
         
+        // if the folder doesn't exist, create it
+        if (mkdir("graphFiles", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0)
+        {
+            std::cout << "Error creating graphFiles folder" << std::endl;
+            return 1;
+        }
+
         // Call randomDigraph.py to generate the files
         std::string command = "python3 scripts/generateDigraph.py";
 
@@ -113,7 +120,7 @@ int main(int argc, char *argv[])
 
     int startID = 0;
     int goalID = graph.size() - 1;
-    
+
     Heuristic* heuristic;
 
     // Get the start time
@@ -124,20 +131,20 @@ int main(int argc, char *argv[])
     {
         case ASTAR:
         {
-            std::cout << "Chosen Algorithm: A*" << std::endl;
+            std::cout << "Chosen Heuristic: A*" << std::endl;
             heuristic = new EuclideanHeuristic(graph[goalID]);
             break;
         }
         case DIJKSTRA:
         {
-            std::cout <<"Chosen Algorithm: Dijkstra" << std::endl;
+            std::cout <<"Chosen Heuristic: Dijkstra's (No heuristic)" << std::endl;
             heuristic = new DijkstraHeuristic(graph[goalID]);
 
             break;
         }
         case MANYPATHS:
         {
-            std::cout <<"Chosen Algorithm: Many Paths" << std::endl;
+            std::cout <<"Chosen Heuristic: Many Paths" << std::endl;
             heuristic = new ManyPathsHeuristic(graph[goalID], graph);
 
             break;
@@ -165,9 +172,10 @@ int main(int argc, char *argv[])
     } else{
 
         // Print out the path in reverse order
-        for(int i = path.size()-1; i >= 0; i--){
-            std::cout << path[i]->id << " ";
+        for(int i = path.size()-1; i >= 1; i--){
+            std::cout << path[i]->id << " -> ";
         }
+        std::cout << path[0]->id << std::endl;
         std::cout << std::endl;
 
         // Print out the total cost of the path
@@ -175,16 +183,11 @@ int main(int argc, char *argv[])
 
     }
 
-
     // delete pointers
     for(auto node : graph){
         delete node;
     }
     graph.clear();
-
-    for(auto node : path){
-        delete node;
-    }
     path.clear();
 
     delete heuristic;
