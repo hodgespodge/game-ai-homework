@@ -82,14 +82,14 @@ std::vector<std::vector<char>> buildMap(std::string mapFile){
     {
         std::vector<char> row;
         for(char c : line){
-            row.push_back(c);
+            if (c != ' '){
+                row.push_back(c);
+            }
         }
         map.push_back(row);
     }
     return map;
 }
-
-
 
 std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<char>> map, float scale){
     std::vector<GraphNode*> graph;
@@ -103,8 +103,37 @@ std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<char>> map, fl
         }
     }
 
-    // recursively fill up each room of "."s with numbers
+    // std::vector<std::vector<GraphNode*>> rooms;
 
+    // // For each node, if it is adjacent to a number on the map, add it to the room
+    // for(auto graphNode : graph){
+    //     std::vector<GraphNode*> room;
+    //     if(graphNode->x > 0 && map[graphNode->y][graphNode->x - 1] == '#'){
+    //         room.push_back(graph[graphNode->y * map[0].size() + graphNode->x - 1]);
+    //     }
+    //     if(graphNode->x < map[0].size() - 1 && map[graphNode->y][graphNode->x + 1] == '#'){
+    //         room.push_back(graph[graphNode->y * map[0].size() + graphNode->x + 1]);
+    //     }
+    //     if(graphNode->y > 0 && map[graphNode->y - 1][graphNode->x] == '#'){
+    //         room.push_back(graph[(graphNode->y - 1) * map[0].size() + graphNode->x]);
+    //     }
+    //     if(graphNode->y < map.size() - 1 && map[graphNode->y + 1][graphNode->x] == '#'){
+    //         room.push_back(graph[(graphNode->y + 1) * map[0].size() + graphNode->x]);
+    //     }
+    //     if(room.size() > 0){
+    //         rooms.push_back(room);
+    //     }
+    // }
+
+    // // For each room, add an edge between each node in the room
+    // for(auto room : rooms){
+    //     for(int i = 0; i < room.size(); i++){
+    //         for(int j = i + 1; j < room.size(); j++){
+    //             room[i]->addNeighbor(room[j], 1);
+    //             room[j]->addNeighbor(room[i], 1);
+    //         }
+    //     }
+    // }
 
     return graph;
 }

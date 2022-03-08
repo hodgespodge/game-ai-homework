@@ -41,7 +41,21 @@ int main(int argc, char *argv[]){
         std::cout << std::endl;
     }
 
-    std::vector<GraphNode*> graph = buildGraphFromMap();
+    // print out the map size
+    std::cout << "Map size: " << indoorMap.size() << " x " << indoorMap[0].size() << std::endl;
+
+    float scale = 1.0f;
+
+    std::vector<GraphNode*> graph = buildGraphFromMap(indoorMap,scale);
+
+    // print graph size
+    std::cout << "Graph size: " << graph.size() << std::endl;
+
+    // print out the graph
+    for (int i = 0; i < graph.size(); i++)
+    {
+        std::cout << "Node " << graph[i]->id << ": " << graph[i]->x << "," << graph[i]->y << std::endl;
+    }
 
 
     // delete pointers
