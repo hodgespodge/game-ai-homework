@@ -69,4 +69,45 @@ std::vector<GraphNode*> buildGraph(std::string edgesFile, std::string nodesFile 
     return graph;
 }
 
+// Read in a CSV grid representation of the map
+// Each line is the same length and has a '.' for an empty space
+// and a '#' for a wall
+//
+// Return a vector of vectors of chars
+std::vector<std::vector<char>> buildMap(std::string mapFile){
+    std::vector<std::vector<char>> map;
+    std::ifstream mapFileStream(mapFile);
+    std::string line;
+    while (std::getline(mapFileStream, line))
+    {
+        std::vector<char> row;
+        for(char c : line){
+            row.push_back(c);
+        }
+        map.push_back(row);
+    }
+    return map;
+}
+
+
+
+std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<char>> map, float scale){
+    std::vector<GraphNode*> graph;
+    for(int i = 0; i < map.size(); i++){
+        for(int j = 0; j < map[i].size(); j++){
+            if(map[i][j] == 'd'){
+                graph.push_back(new GraphNode(i*map[i].size() + j, j, i));
+            }else if( map[i][j] == 's'|| map[i][j] == 'g'){
+                graph.push_back(new GraphNode(i*map[i].size() + j, j, i));
+            }
+        }
+    }
+
+    // recursively fill up each room of "."s with numbers
+
+
+    return graph;
+}
+
+
 #endif
