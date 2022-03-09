@@ -1,13 +1,13 @@
-all: clean GraphSearchTester IndoorMapTester
+all: clean Main 
 
 clean:
-	rm -f *.o Main GraphSearchTester
+	rm -f *.o Main GraphSearchTester IndoorMapTester
 
-# Main: Main.o 
-# 	g++  Main.o -o Main -lsfml-graphics -lsfml-window -lsfml-system -pthread
+Main: Main.o 
+	g++  Main.o -o Main -lsfml-graphics -lsfml-window -lsfml-system -pthread
 
-# Main.o: Main.cpp
-# 	g++ -c Main.cpp
+Main.o: Main.cpp
+	g++ -c Main.cpp
 
 GraphSearchTester: GraphSearchTester.o
 	g++  -std=c++11 GraphSearchTester.o -o GraphSearchTester -lsfml-graphics -lsfml-window -lsfml-system -pthread

@@ -13,6 +13,7 @@ from venv import create
 
 id = 0
 
+
 def generateIndoorMap(width, height, room_density):
     grid = [['.' for i in range(width)] for j in range(height)]
 
@@ -27,21 +28,23 @@ def generateIndoorMap(width, height, room_density):
 
     grid = createRoomsRecursively(room_density, 0.7, grid)
 
-    # add a random start in a random place in the bottom left corner where there is no "#"
-    start_x = random.randint(1, (width/5) - 2)
-    start_y = random.randint(1, (height/5) - 2)
-    while grid[start_y][start_x] == '#,':
-        start_x = random.randint(1, (width/5) - 2)
-        start_y = random.randint(1, (height/5) - 2)
-    grid[start_y][start_x] = 's,'
+    # TODO: make sure the start and goal nodes are not adjacent to any doors.
 
-    # add a random goal in a random place in the top right corner where there is no "#"
-    goal_x = random.randint((width*4/5) + 1, width - 2)
-    goal_y = random.randint((height*4/5) + 1, height - 2)
-    while grid[goal_y][goal_x] == '#,' or grid[goal_y][goal_x] == 's,':
-        goal_x = random.randint((width*4/5) + 1, width - 2)
-        goal_y = random.randint((height*4/5) + 1, height - 2)
-    grid[goal_y][goal_x] = 'g,'
+    # # add a random start in a random place in the bottom left corner where there is no "#" and there are no doors adjacent to the start
+    # start_x = random.randint(1, (width/5) - 2)
+    # start_y = random.randint(1, (height/5) - 2)
+    # while grid[start_y][start_x] == '#,':
+    #     start_x = random.randint(1, (width/5) - 2)
+    #     start_y = random.randint(1, (height/5) - 2)
+    # grid[start_y][start_x] = 's,'
+
+    # # add a random goal in a random place in the top right corner where there is no "#" and there are no doors adjacent to the goal
+    # goal_x = random.randint((width*4/5) + 1, width - 2)
+    # goal_y = random.randint((height*4/5) + 1, height - 2)
+    # while grid[goal_y][goal_x] == '#,' or grid[goal_y][goal_x] == 's,':
+    #     goal_x = random.randint((width*4/5) + 1, width - 2)
+    #     goal_y = random.randint((height*4/5) + 1, height - 2)
+    # grid[goal_y][goal_x] = 'g,'
 
     return grid
 
@@ -142,10 +145,9 @@ def divideHorizontally(min_iterations, stop_chance, grid, start_x , start_y , en
 
 def main():
 
-    width = 50
+    width = 100
     height = 50
     room_density = 4
-    doors = 3
 
     grid = generateIndoorMap(width, height, room_density)
     for i in range(height):

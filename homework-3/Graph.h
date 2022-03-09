@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <set>
+#include <math.h>
 
 #include "GraphNode.h"
 
@@ -101,24 +102,32 @@ std::vector<std::vector<std::string>> buildMap(std::string mapFile){
 std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> map, float scale){
     std::vector<GraphNode*> graph;
     std::set<int> roomNumbers;
+
+    // GraphNode *startNode = nullptr;
+    // GraphNode *endNode = nullptr;
+
     for(int i = 0; i < map.size(); i++){
         for(int j = 0; j < map[i].size(); j++){
+
+            
             if(map[i][j] == "d"){
                 graph.push_back(new GraphNode(i*map[i].size() + j, j, i));
-            }else if( map[i][j] == "s"|| map[i][j] == "g"){
-                graph.push_back(new GraphNode(i*map[i].size() + j, j, i));
-            }else if(map[i][j] != "#"){
-                // add the number to the set of roomNumbers
+            }
+            else if ( map[i][j] != "#"){
+                try{
+                    int room_num = std::stoi(map[i][j]);
+                }
+                catch(std::invalid_argument& e){
+                    std::cout << "Invalid argument: " << e.what() << '\n';
+                    continue;
+                }
+    
                 roomNumbers.insert(std::stoi(map[i][j]));
             }
+
         }
     }
-
-    //print the room numbers
-    for(auto it = roomNumbers.begin(); it != roomNumbers.end(); ++it){
-        std::cout << *it << " ";
-    }
-
+    
     std::vector<std::vector<GraphNode*>> rooms;
 
     // initialize rooms with the size of the roomNumbers
@@ -128,33 +137,72 @@ std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> 
     }
 
     // For each node, if it is adjacent to a number on the map, add it to the room
+    std::string tile = "";
     for(auto graphNode : graph){
 
         // get the x and y coordinates of the node
         int x = graphNode->x;
         int y = graphNode->y;
 
-
-
-    }
-
-    // print number of nodes in graph
-    std::cout << "Number of nodes in graph: " << graph.size() << std::endl;
-
-    // print size of rooms
-    std::cout << "Number of rooms: " << rooms.size() << std::endl;
-
-    // Print the node ids of each room
-    for(auto room : rooms){
-        std::cout << "Room: ";
-        for(auto node : room){
-            std::cout << node->id << " ";
+        // check the map tile above the node
+        tile = map[y-1][x];
+        if(y > 0 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
+            // add the node to the room number room
+            rooms[std::stoi(tile)].push_back(graphNode);
         }
-        std::cout << std::endl;
+
+        // check the map tile below the node
+        tile = map[y+1][x];
+        if(y < map.size()-1 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
+            // add the node to the room number room
+            rooms[std::stoi(tile)].push_back(graphNode);
+
+        }
+
+        // check the map tile to the left of the node
+        tile = map[y][x-1];
+        if(x > 0 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
+            // add the node to the room number room
+            rooms[std::stoi(tile)].push_back(graphNode);
+
+        }
+
+        // check the map tile to the right of the node
+        tile = map[y][x+1];
+        if(x < map[y].size()-1 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
+            // add the node to the room number room
+            rooms[std::stoi(tile)].push_back(graphNode);
+
+        }
     }
+
+    // for each node, multiply its position by the scale factor
+    for(auto node : graph){
+        
+        node->x *= scale;
+        node->y *= scale;
+        
+    }
+
+    // for each node in each room, add an edge to every other node in the room with a cost equal to the euclidean distance between the two nodes
+    for(auto room : rooms){
+        for(auto node1 : room){
+            for(auto node2 : room){
+                if(node1 != node2){
+                    float distance = sqrt(pow(node1->x - node2->x, 2) + pow(node1->y - node2->y, 2));
+                    node1->addNeighbor(node2, distance*scale);
+                }
+            }
+        }
+    }
+
+    // free up the memory for the rooms
+    for(auto room : rooms){
+        room.clear();
+    }
+    rooms.clear();
 
     return graph;
 }
-
 
 #endif

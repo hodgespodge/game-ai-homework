@@ -6,7 +6,7 @@
 #include <chrono>
 #include <cctype>
 #include <set>
-#include <SFML/Graphics.hpp>
+// #include <SFML/Graphics.hpp>
 #include <iomanip>
 
 
@@ -54,12 +54,42 @@ int main(int argc, char *argv[]){
     // print graph size
     std::cout << "Graph size: " << graph.size() << std::endl;
 
-    // print out the graph
-    for (int i = 0; i < graph.size(); i++)
-    {
-        std::cout << "Node " << graph[i]->id << ": " << graph[i]->x << "," << graph[i]->y << std::endl;
-    }
+    // print out the graph nodes and their neighbors
+    bool verbose = true;
+    if (verbose){
 
+        int nodesPrinted = 0;
+      
+        for(int linesPrinted = 0; nodesPrinted < graph.size() && linesPrinted < 50; nodesPrinted++){
+            // Print out the node
+            std::cout << "Node " << graph[nodesPrinted]->id << ": ";
+            std::cout << std::endl;
+            linesPrinted++;
+
+            // For each neighbor, print out the neighbor and the cost of the edge
+            for(auto neighbor : graph[nodesPrinted]->neighbors){
+                std::cout << "    " << neighbor.second->id << ": " << neighbor.first << std::endl;
+                linesPrinted++;
+            }
+        }
+
+        if (nodesPrinted < graph.size()/2){
+            nodesPrinted = graph.size() - nodesPrinted;
+            printf("\n.\n.\n.\n.\n\n");
+        }
+
+        for(; nodesPrinted < graph.size(); nodesPrinted++){
+            // Print out the node
+            std::cout << "Node " << graph[nodesPrinted]->id << ": ";
+            std::cout << std::endl;
+
+            // For each neighbor, print out the neighbor and the cost of the edge
+            for(auto neighbor : graph[nodesPrinted]->neighbors){
+                std::cout << "    " << neighbor.second->id << ": " << neighbor.first << std::endl;
+            }
+        }
+
+    }
 
     // delete pointers
     for(auto node : graph){
