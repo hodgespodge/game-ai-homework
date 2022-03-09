@@ -99,12 +99,26 @@ std::vector<std::vector<std::string>> buildMap(std::string mapFile){
     return map;
 }
 
-std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> map, float scale){
-    std::vector<GraphNode*> graph;
-    std::set<int> roomNumbers;
 
-    // GraphNode *startNode = nullptr;
-    // GraphNode *endNode = nullptr;
+
+struct room{
+    int roomID;
+    int x;
+    int y;
+    std::vector<GraphNode*> doors;  
+};
+
+struct buildGraphFromMapReturn{
+    std::vector<GraphNode*> graph;
+    std::vector<room> rooms;
+};
+
+buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> map, float scale){
+    std::vector<GraphNode*> graph;
+
+    std::vector<room> rooms;
+
+    buildGraphFromMapReturn returnStruct;
 
     for(int i = 0; i < map.size(); i++){
         for(int j = 0; j < map[i].size(); j++){
@@ -113,27 +127,24 @@ std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> 
             if(map[i][j] == "d"){
                 graph.push_back(new GraphNode(i*map[i].size() + j, j, i));
             }
-            else if ( map[i][j] != "#"){
-                try{
-                    int room_num = std::stoi(map[i][j]);
-                }
-                catch(std::invalid_argument& e){
-                    std::cout << "Invalid argument: " << e.what() << '\n';
-                    continue;
-                }
-    
-                roomNumbers.insert(std::stoi(map[i][j]));
+            // if the string starts with an 'r'
+            else if (map[i][j].at(0) == 'r'){
+
+                // get the room number (the number after the 'r')
+                int roomNum = std::stoi(map[i][j].substr(1));
+
+                room newRoom;
+
+                newRoom.roomID = roomNum;
+                newRoom.x = j;
+                newRoom.y = i;
+                newRoom.doors = std::vector<GraphNode*>();
+
+                rooms.push_back(newRoom);
+
             }
 
         }
-    }
-    
-    std::vector<std::vector<GraphNode*>> rooms;
-
-    // initialize rooms with the size of the roomNumbers
-    for(auto it = roomNumbers.begin(); it != roomNumbers.end(); ++it){
-        std::vector<GraphNode*> room;
-        rooms.push_back(room);
     }
 
     // For each node, if it is adjacent to a number on the map, add it to the room
@@ -148,14 +159,16 @@ std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> 
         tile = map[y-1][x];
         if(y > 0 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
             // add the node to the room number room
-            rooms[std::stoi(tile)].push_back(graphNode);
+
+            rooms[std::stoi(tile)].doors.push_back(graphNode);
         }
 
         // check the map tile below the node
         tile = map[y+1][x];
         if(y < map.size()-1 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
             // add the node to the room number room
-            rooms[std::stoi(tile)].push_back(graphNode);
+
+            rooms[std::stoi(tile)].doors.push_back(graphNode);
 
         }
 
@@ -163,7 +176,8 @@ std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> 
         tile = map[y][x-1];
         if(x > 0 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
             // add the node to the room number room
-            rooms[std::stoi(tile)].push_back(graphNode);
+
+            rooms[std::stoi(tile)].doors.push_back(graphNode);
 
         }
 
@@ -171,7 +185,8 @@ std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> 
         tile = map[y][x+1];
         if(x < map[y].size()-1 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
             // add the node to the room number room
-            rooms[std::stoi(tile)].push_back(graphNode);
+
+            rooms[std::stoi(tile)].doors.push_back(graphNode);
 
         }
     }
@@ -186,23 +201,21 @@ std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> 
 
     // for each node in each room, add an edge to every other node in the room with a cost equal to the euclidean distance between the two nodes
     for(auto room : rooms){
-        for(auto node1 : room){
-            for(auto node2 : room){
-                if(node1 != node2){
-                    float distance = sqrt(pow(node1->x - node2->x, 2) + pow(node1->y - node2->y, 2));
-                    node1->addNeighbor(node2, distance*scale);
+        for(auto node : room.doors){
+            for(auto otherNode : room.doors){
+                if(node != otherNode){
+                    // std::cout << "Adding edge from " << node->id << " to " << otherNode->id << std::endl;
+                    node->addNeighbor(otherNode, sqrt(pow(node->x - otherNode->x, 2) + pow(node->y - otherNode->y, 2)));
                 }
             }
         }
     }
 
-    // free up the memory for the rooms
-    for(auto room : rooms){
-        room.clear();
-    }
-    rooms.clear();
 
-    return graph;
+    returnStruct.graph = graph;
+    returnStruct.rooms = rooms;
+
+    return returnStruct;
 }
 
 #endif

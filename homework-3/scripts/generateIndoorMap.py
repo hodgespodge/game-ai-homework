@@ -74,6 +74,10 @@ def divideVertically(min_iterations, stop_chance, grid, start_x , start_y , end_
                         
                         # grid[i][j] = str(id).ljust(2)
                         grid[i][j] = str(id) + ','
+
+            # place an 'r' in the center of the room
+            grid[(start_y + end_y) // 2][(start_x + end_x) // 2] = 'r'+str(id)+','
+
             id += 1
             return grid
 
@@ -115,8 +119,12 @@ def divideHorizontally(min_iterations, stop_chance, grid, start_x , start_y , en
                         
                         # grid[i][j] = str(id).ljust(2)
                         grid[i][j] = str(id) + ','
-            id += 1
+            
 
+            # place an 'r' in the center of the room
+            grid[(start_y + end_y) // 2][(start_x + end_x) // 2] = 'r'+str(id)+','
+            
+            id += 1
 
             return grid
 

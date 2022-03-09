@@ -59,7 +59,10 @@ int main(int argc, char *argv[])
 
     float scale = windowSize/mapSize;
 
-    std::vector<GraphNode*> graph = buildGraphFromMap(indoorMap,scale);
+    buildGraphFromMapReturn graph_rooms = buildGraphFromMap(indoorMap, scale);
+
+    std::vector<GraphNode*> graph = graph_rooms.graph;
+    std::vector<room> rooms = graph_rooms.rooms;
 
     // print graph size
     std::cout << "Graph size: " << graph.size() << std::endl;
