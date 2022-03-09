@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <set>
 
 #include "GraphNode.h"
 
@@ -71,69 +72,86 @@ std::vector<GraphNode*> buildGraph(std::string edgesFile, std::string nodesFile 
 
 // Read in a CSV grid representation of the map
 // Each line is the same length and has a '.' for an empty space
-// and a '#' for a wall
+// and a "#" for a wall
 //
 // Return a vector of vectors of chars
-std::vector<std::vector<char>> buildMap(std::string mapFile){
-    std::vector<std::vector<char>> map;
+std::vector<std::vector<std::string>> buildMap(std::string mapFile){
+
+    std::vector<std::vector<std::string>> map;
     std::ifstream mapFileStream(mapFile);
     std::string line;
     while (std::getline(mapFileStream, line))
     {
-        std::vector<char> row;
-        for(char c : line){
-            if (c != ' '){
-                row.push_back(c);
-            }
+        std::vector<std::string> row;
+
+        // add each string separated by a comma to the row
+
+        std::stringstream lineStream(line);
+        std::string cell;
+        while (std::getline(lineStream, cell, ','))
+        {
+            row.push_back(cell);
         }
+        
         map.push_back(row);
     }
     return map;
 }
 
-std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<char>> map, float scale){
+std::vector<GraphNode*> buildGraphFromMap(std::vector<std::vector<std::string>> map, float scale){
     std::vector<GraphNode*> graph;
+    std::set<int> roomNumbers;
     for(int i = 0; i < map.size(); i++){
         for(int j = 0; j < map[i].size(); j++){
-            if(map[i][j] == 'd'){
+            if(map[i][j] == "d"){
                 graph.push_back(new GraphNode(i*map[i].size() + j, j, i));
-            }else if( map[i][j] == 's'|| map[i][j] == 'g'){
+            }else if( map[i][j] == "s"|| map[i][j] == "g"){
                 graph.push_back(new GraphNode(i*map[i].size() + j, j, i));
+            }else if(map[i][j] != "#"){
+                // add the number to the set of roomNumbers
+                roomNumbers.insert(std::stoi(map[i][j]));
             }
         }
     }
 
-    // std::vector<std::vector<GraphNode*>> rooms;
+    //print the room numbers
+    for(auto it = roomNumbers.begin(); it != roomNumbers.end(); ++it){
+        std::cout << *it << " ";
+    }
 
-    // // For each node, if it is adjacent to a number on the map, add it to the room
-    // for(auto graphNode : graph){
-    //     std::vector<GraphNode*> room;
-    //     if(graphNode->x > 0 && map[graphNode->y][graphNode->x - 1] == '#'){
-    //         room.push_back(graph[graphNode->y * map[0].size() + graphNode->x - 1]);
-    //     }
-    //     if(graphNode->x < map[0].size() - 1 && map[graphNode->y][graphNode->x + 1] == '#'){
-    //         room.push_back(graph[graphNode->y * map[0].size() + graphNode->x + 1]);
-    //     }
-    //     if(graphNode->y > 0 && map[graphNode->y - 1][graphNode->x] == '#'){
-    //         room.push_back(graph[(graphNode->y - 1) * map[0].size() + graphNode->x]);
-    //     }
-    //     if(graphNode->y < map.size() - 1 && map[graphNode->y + 1][graphNode->x] == '#'){
-    //         room.push_back(graph[(graphNode->y + 1) * map[0].size() + graphNode->x]);
-    //     }
-    //     if(room.size() > 0){
-    //         rooms.push_back(room);
-    //     }
-    // }
+    std::vector<std::vector<GraphNode*>> rooms;
 
-    // // For each room, add an edge between each node in the room
-    // for(auto room : rooms){
-    //     for(int i = 0; i < room.size(); i++){
-    //         for(int j = i + 1; j < room.size(); j++){
-    //             room[i]->addNeighbor(room[j], 1);
-    //             room[j]->addNeighbor(room[i], 1);
-    //         }
-    //     }
-    // }
+    // initialize rooms with the size of the roomNumbers
+    for(auto it = roomNumbers.begin(); it != roomNumbers.end(); ++it){
+        std::vector<GraphNode*> room;
+        rooms.push_back(room);
+    }
+
+    // For each node, if it is adjacent to a number on the map, add it to the room
+    for(auto graphNode : graph){
+
+        // get the x and y coordinates of the node
+        int x = graphNode->x;
+        int y = graphNode->y;
+
+
+
+    }
+
+    // print number of nodes in graph
+    std::cout << "Number of nodes in graph: " << graph.size() << std::endl;
+
+    // print size of rooms
+    std::cout << "Number of rooms: " << rooms.size() << std::endl;
+
+    // Print the node ids of each room
+    for(auto room : rooms){
+        std::cout << "Room: ";
+        for(auto node : room){
+            std::cout << node->id << " ";
+        }
+        std::cout << std::endl;
+    }
 
     return graph;
 }

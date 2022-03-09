@@ -7,6 +7,8 @@
 #include <cctype>
 #include <set>
 #include <SFML/Graphics.hpp>
+#include <iomanip>
+
 
 #include "Graph.h"
 
@@ -29,14 +31,15 @@ int main(int argc, char *argv[]){
         return 1;
     }
     
-    std::vector<std::vector<char>> indoorMap = buildMap(indoorMapFile);
+    std::vector<std::vector<std::string>> indoorMap = buildMap(indoorMapFile);
 
     // print out the map
     for (int i = 0; i < indoorMap.size(); i++)
     {
         for (int j = 0; j < indoorMap[i].size(); j++)
         {
-            std::cout << indoorMap[i][j];
+
+            std::cout << std::setw(2) << indoorMap[i][j];
         }
         std::cout << std::endl;
     }
