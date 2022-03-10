@@ -103,9 +103,17 @@ std::vector<std::vector<std::string>> buildMap(std::string mapFile){
 
 struct room{
     int roomID;
-    int x;
-    int y;
-    std::vector<GraphNode*> doors;  
+    int x; // the x coordinate of middle of room
+    int y; // the y coordinate of middle of room
+
+    int x1; // the x coordinate of the top left corner of the room
+    int y1; // the y coordinate of the top left corner of the room
+
+    int x2; // the x coordinate of the bottom right corner of the room
+    int y2; // the y coordinate of the bottom right corner of the room
+
+    std::vector<GraphNode*> doors;
+    // GraphNode* center;  
 };
 
 struct buildGraphFromMapReturn{
@@ -138,9 +146,54 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
                 newRoom.roomID = roomNum;
                 newRoom.x = j;
                 newRoom.y = i;
+
+                // loop through the map and find the top left corner of the room
+                int x1 = j -1;
+                int y1 = i -1;
+
+                while(map[i][x1] != "#" && map[i][x1] != "d"){
+                    x1--;
+                }
+                // x1++;
+
+                while(map[y1][j] != "#" && map[y1][j] != "d" ){
+                    y1--;
+                }
+                // y1 ++;
+
+                newRoom.x1 = x1 * scale;
+                newRoom.y1 = y1 * scale;
+
+                // loop through the map and find the bottom right corner of the room
+                int x2 = j + 1;
+                int y2 = i + 1;
+
+                while(map[i][x2] != "#" && map[i][x2] != "d"){
+                    x2++;
+                }
+
+
+                while(map[y2][j] != "#" &&  map[y2][j] != "d"){
+                    y2++;
+                }
+
+
+                newRoom.x2 = x2 * scale;
+                newRoom.y2 = y2 * scale;
+
+                // cout
+                std::cout << "room " << roomNum << ": " << newRoom.x1 << " " << newRoom.y1 << " " << newRoom.x2 << " " << newRoom.y2 << std::endl;
+
                 newRoom.doors = std::vector<GraphNode*>();
 
+                // GraphNode* centerNode = new GraphNode(-roomNum, j, i);
+                // newRoom.center = centerNode;
+
                 rooms.push_back(newRoom);
+
+                // add the room to the graph
+                // graph.push_back(centerNode);
+                
 
             }
 

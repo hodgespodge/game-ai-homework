@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     std::cout << "Graph size: " << graph.size() << std::endl;
 
     // initialize the map drawer
-    MapDrawer mapDrawer(indoorMap, graph, scale);
+    MapDrawer mapDrawer(indoorMap, graph, rooms , scale);
 
 
     // std::list<Boid*> boids;
@@ -194,6 +194,7 @@ int main(int argc, char *argv[])
         // }
 
         // draw the map
+        mapDrawer.drawFloors(window);
         mapDrawer.drawMap(window);
         mapDrawer.drawOverlay(window);
 
