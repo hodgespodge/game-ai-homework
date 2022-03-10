@@ -103,9 +103,6 @@ std::vector<std::vector<std::string>> buildMap(std::string mapFile){
 
 struct room{
     int roomID;
-    int x; // the x coordinate of middle of room
-    int y; // the y coordinate of middle of room
-
     int x1; // the x coordinate of the top left corner of the room
     int y1; // the y coordinate of the top left corner of the room
 
@@ -144,8 +141,6 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
                 room newRoom;
 
                 newRoom.roomID = roomNum;
-                newRoom.x = j;
-                newRoom.y = i;
 
                 // loop through the map and find the top left corner of the room
                 int x1 = j -1;
@@ -185,18 +180,9 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
                 std::cout << "room " << roomNum << ": " << newRoom.x1 << " " << newRoom.y1 << " " << newRoom.x2 << " " << newRoom.y2 << std::endl;
 
                 newRoom.doors = std::vector<GraphNode*>();
-
-                // GraphNode* centerNode = new GraphNode(-roomNum, j, i);
-                // newRoom.center = centerNode;
-
                 rooms.push_back(newRoom);
 
-                // add the room to the graph
-                // graph.push_back(centerNode);
-                
-
             }
-
         }
     }
 
@@ -270,5 +256,55 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
     return returnStruct;
 }
+
+room getRoomFromCoordinates(std::vector<room> rooms, int x, int y){
+    for(auto room : rooms){
+        if(x >= room.x1 && x <= room.x2 && y >= room.y1 && y <= room.y2){
+            return room;
+        }
+    }
+    std::cout << "ERROR: Could not find room from coordinates" << std::endl;
+    return rooms[0];
+}
+
+std::vector<GraphNode*> addNodeToGraph(std::vector<GraphNode*> graph, std::vector<room> rooms, GraphNode* node){
+
+    // get the room that the node is in
+    room room = getRoomFromCoordinates(rooms, node->x, node->y);
+    
+    // add an edge to and from every other node in the room
+    for(auto otherNode : room.doors){
+        if(otherNode != node){
+            // std::cout << "Adding edge from " << node->id << " to " << otherNode->id << std::endl;
+            node->addNeighbor(otherNode, sqrt(pow(node->x - otherNode->x, 2) + pow(node->y - otherNode->y, 2)));
+            otherNode->addNeighbor(node, sqrt(pow(otherNode->x - node->x, 2) + pow(otherNode->y - node->y, 2)));
+        }
+    }
+    
+    return graph;
+}
+
+std::vector<GraphNode*> removeNodeFromGraph(std::vector<GraphNode*> graph, GraphNode* node){
+
+    // remove each of the node's neighbor's edges to the node
+    for(auto neighbor : node->neighbors){
+        neighbor.second->removeNeighbor(node->id);
+    }
+    // remove the node's edges to its neighbors
+    node->neighbors.clear();
+    node->visited = false;
+    node->parent = nullptr;
+
+    return graph;
+}
+
+std::vector<GraphNode*> cleanGraph(std::vector<GraphNode*> graph){
+    for(auto node : graph){
+        node->visited = false;
+        node->parent = nullptr;
+    }
+    return graph;
+}
+
 
 #endif

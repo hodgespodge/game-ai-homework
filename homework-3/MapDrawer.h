@@ -21,7 +21,7 @@ public:
     std::vector<sf::RectangleShape> floors;
     std::vector<sf::CircleShape> circles;
     std::vector<sf::RectangleShape> lines;
-    std::vector<sf::Text> texts;
+    // std::vector<sf::Text> texts;
 
     MapDrawer(std::vector<std::vector<std::string>> map, std::vector<GraphNode*> Nodes ,std::vector<room> rooms ,float scale){
         this->map = map;
@@ -90,6 +90,7 @@ public:
         walls.clear();
         circles.clear();
         lines.clear();
+        floors.clear();
     }
 
     sf::RectangleShape lineBetweenPoints(sf::Vector2f start, sf::Vector2f end, float thickness){

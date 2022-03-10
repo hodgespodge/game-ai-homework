@@ -10,29 +10,20 @@
 
 #include "MapDrawer.h"
 #include "Graph.h"
+#include "from-homework-2/Boid.h"
+#include "EuclideanHeuristic.h"
+#include "from-homework-2/SteeringBehavior.h"
+#include "PathFollower.h"
 
 int main(int argc, char *argv[])
 {
 
-    // set values here ------------------------------------------------------
-
-    // int windowWidth = 640;
-    // int windowHeight = 480;
-
     int windowWidth = 1920;
     int windowHeight = 1080;
     int targetFPS = 40;
-    // int numThreads = 1;
-
-    // end of user values ---------------------------------------------------
 
     sf::Clock clock;
     sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Demonstrating Steering Behavior");
-
-    // sf::Texture texture;
-    // if(!texture.loadFromFile("images/boid-sm.png")){
-    //     return EXIT_FAILURE;
-    // }
 
     std::string indoorMapFile = "graphFiles/indoorMap.csv";
 
@@ -43,7 +34,6 @@ int main(int argc, char *argv[])
         std::cout << "Error: " << indoorMapFile << " does not exist" << std::endl;
         return 1;
     }
-
 
     std::vector<std::vector<std::string>> indoorMap = buildMap(indoorMapFile);
 
@@ -70,75 +60,35 @@ int main(int argc, char *argv[])
     // initialize the map drawer
     MapDrawer mapDrawer(indoorMap, graph, rooms , scale);
 
+    int numBreadCrumbs;
+    bool drawBreadcrumbs;
+    bool fadeBreadcrumbs;
+    bool drawID;
 
-    // std::list<Boid*> boids;
+    SteeringBehavior* steeringBehavior = new PathFollower(window, graph, rooms);
 
-    // int numBreadCrumbs;
-    // int numBoids;
-    // bool drawBreadcrumbs;
-    // bool fadeBreadcrumbs;
-    // bool drawID;
+    numBreadCrumbs = steeringBehavior->numBreadCrumbs;
+    drawBreadcrumbs = steeringBehavior->drawBreadcrumbs;
+    fadeBreadcrumbs = steeringBehavior->fadeBreadcrumbs;
+    drawID = steeringBehavior->drawID;
 
-    // SteeringBehavior* steeringBehavior = NULL;
-
-    // // if second argument is "-v", use velocity matching
-    // if(argc > 1 && strcmp(argv[1], "-v") == 0){
-    //     steeringBehavior = new VelocityMatching(window);
-
-    // } else if(argc > 1 && strcmp(argv[1], "-a") == 0){
-    //     steeringBehavior = new ArriveAndAlign(window);
-
-    // } else if(argc > 1 && strcmp(argv[1], "-w") == 0){
-    //     steeringBehavior = new Wander(window);
-
-    // } else if(argc > 1 && strcmp(argv[1], "-f") == 0){
-    //     steeringBehavior = new Flocking(window,boids);
-     
-    // } else {
-    //     steeringBehavior = new Flocking(window, boids);
-    // }
-
-    // printf("Using steering behavior: %s\n", steeringBehavior->getName().c_str());
-
-    // numBoids = steeringBehavior->numBoids;
-    // numBreadCrumbs = steeringBehavior->numBreadCrumbs;
-    // drawBreadcrumbs = steeringBehavior->drawBreadcrumbs;
-    // fadeBreadcrumbs = steeringBehavior->fadeBreadcrumbs;
-    // drawID = steeringBehavior->drawID;
-
-    // float windowSizeFactor = (window.getSize().x * window.getSize().y) / (float) IDEAL_WINDOW_SIZE;
-    
-    // float spriteScaleFactor = 2.0f*windowSizeFactor;
-    // if (spriteScaleFactor > 1.5f) {
-    //     spriteScaleFactor = 1.5f;
-    // }else if (spriteScaleFactor < 0.5f){
-    //     spriteScaleFactor = 0.5f;
-    // }
+    Boid* sprite = new Boid(numBreadCrumbs, 1.0);
 
 
-    // initialize the boids
-    // for(int i = 0; i < numBoids; i++){
+    sf::Texture texture;
+    if(!texture.loadFromFile("images/boid-sm.png")){
+        return EXIT_FAILURE;
+    }
 
-    //     Boid * sprite = new Boid(numBreadCrumbs, spriteScaleFactor);
+    sprite->setTexture(texture);
+    // sprite->setScale(2.0f*spriteScaleFactor, 2.0f*spriteScaleFactor);
+    sprite->setPosition(rand() % (int)window.getSize().x, rand() % (int)window.getSize().y);
+    sprite->setID(0);
 
-    //     sprite->setTexture(texture);
-    //     sprite->setScale(2.0f*spriteScaleFactor, 2.0f*spriteScaleFactor);
-    //     sprite->setPosition(rand() % (int)window.getSize().x, rand() % (int)window.getSize().y);
-    //     sprite->linearVelocity = 0.05f*sf::Vector2f(rand() % 10 - 5, rand() % 10 - 5);
-    //     sprite->setRotation(rand() % 360);
-    //     sprite->setID(i);
-    //     boids.push_back(sprite);
-
-    // }
 
     // frames per update
     int updateFrames = 1000/targetFPS;
 
-    // initialize a thread pool
-    // BasicThreadPool * updater = NULL;
-    // if (numThreads > 1){
-    //     updater = new BasicThreadPool(8);
-    // }
     
     while (window.isOpen())
     {
@@ -151,7 +101,7 @@ int main(int argc, char *argv[])
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            // steeringBehavior->checkEvent(event);
+            steeringBehavior->checkEvent(event);
             
         }
 
@@ -159,44 +109,32 @@ int main(int argc, char *argv[])
         if (clock.getElapsedTime().asMilliseconds() > updateFrames)
         {
            
-            // for(auto s : boids){
-            //     steeringBehavior->updateSprite(*s, clock.getElapsedTime().asMilliseconds() );;
-            // }
-            
-            // steeringBehavior->postUpdate();
+
+            steeringBehavior->updateSprite(*sprite, clock.getElapsedTime().asMilliseconds() );
             
             clock.restart();
         }
 
         // clear the window with white color
         window.clear(sf::Color::White);
-
-        // if (drawBreadcrumbs)
-        // {
-        //     for(auto s : boids){
-        //         s->drawBreadcrumbs(window, fadeBreadcrumbs);
-        //         window.draw(*s);
-        //     }
-        // }
-
-        // if (drawID)
-        // {
-        //     for(auto s : boids){
-        //         s->drawID(window);
-        //         window.draw(*s);
-        //     }
-        // }
-
-        // else{
-        //     for(auto s : boids){
-        //         window.draw(*s);
-        //     }
-        // }
-
-        // draw the map
         mapDrawer.drawFloors(window);
         mapDrawer.drawMap(window);
         mapDrawer.drawOverlay(window);
+
+        if (drawBreadcrumbs)
+        {
+            sprite->drawBreadcrumbs(window, fadeBreadcrumbs);    
+        }
+
+        if (drawID)
+        {
+            sprite->drawID(window);
+            window.draw(*sprite);
+        }
+
+        else{
+            window.draw(*sprite);
+        }
 
         window.display();
     }

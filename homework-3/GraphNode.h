@@ -36,7 +36,17 @@ class GraphNode
         // Add a neighbor to the node
         void addNeighbor(GraphNode* neighbor, int cost){
             neighbors.emplace(std::make_pair(cost, neighbor));
-            
+        }
+
+        // Remove a neighbor from the node
+        void removeNeighbor(int neighborID){
+            for(auto it = neighbors.begin(); it != neighbors.end(); ++it){
+                if(it->second->id == neighborID){
+                    neighbors.erase(it);
+                    return;
+                }
+            }
+            std::cout << "Neighbor not found" << std::endl;
         }
 
         // calling the destructor will delete the entire graph I believe
