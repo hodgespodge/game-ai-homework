@@ -103,7 +103,7 @@ public:
 
 
         line.setPosition(start);
-        line.setFillColor(sf::Color::Black);
+        line.setFillColor(sf::Color::Blue);
 
         line.setRotation(atan2(end.y - start.y, end.x - start.x) * 180 / 3.14159265);
 

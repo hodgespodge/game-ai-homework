@@ -177,7 +177,7 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
                 newRoom.y2 = y2 * scale;
 
                 // cout
-                std::cout << "room " << roomNum << ": " << newRoom.x1 << " " << newRoom.y1 << " " << newRoom.x2 << " " << newRoom.y2 << std::endl;
+                // std::cout << "room " << roomNum << ": " << newRoom.x1 << " " << newRoom.y1 << " " << newRoom.x2 << " " << newRoom.y2 << std::endl;
 
                 newRoom.doors = std::vector<GraphNode*>();
                 rooms.push_back(newRoom);
@@ -257,9 +257,15 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
     return returnStruct;
 }
 
+
+// TODO this function is not working
 room getRoomFromCoordinates(std::vector<room> rooms, int x, int y){
     for(auto room : rooms){
         if(x >= room.x1 && x <= room.x2 && y >= room.y1 && y <= room.y2){
+
+            // print room info
+            // std::cout << "room " << room.roomID << ": " << room.x1 << " " << room.y1 << " " << room.x2 << " " << room.y2 << std::endl;
+
             return room;
         }
     }
@@ -280,7 +286,7 @@ std::vector<GraphNode*> addNodeToGraph(std::vector<GraphNode*> graph, std::vecto
             otherNode->addNeighbor(node, sqrt(pow(otherNode->x - node->x, 2) + pow(otherNode->y - node->y, 2)));
         }
     }
-    
+
     return graph;
 }
 

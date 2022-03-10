@@ -2,7 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <list>
+// #include <list>
 #include <string>
 #include <sys/stat.h>
 #include <iostream>
@@ -18,8 +18,8 @@
 int main(int argc, char *argv[])
 {
 
-    int windowWidth = 1920;
-    int windowHeight = 1080;
+    int windowWidth = 1600;
+    int windowHeight = 900;
     int targetFPS = 40;
 
     sf::Clock clock;
@@ -82,7 +82,8 @@ int main(int argc, char *argv[])
 
     sprite->setTexture(texture);
     // sprite->setScale(2.0f*spriteScaleFactor, 2.0f*spriteScaleFactor);
-    sprite->setPosition(rand() % (int)window.getSize().x, rand() % (int)window.getSize().y);
+    // sprite->setPosition(rand() % (int)window.getSize().x, rand() % (int)window.getSize().y);
+    sprite->setPosition(100, 100);
     sprite->setID(0);
 
 

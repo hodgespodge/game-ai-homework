@@ -26,11 +26,9 @@ std::vector<GraphNode*> reconstructPath(GraphNode* node){
 
 // Perform an a* search on the graph from start to goal
 // Return a vector of pointers to the nodes in the path
-std::vector<GraphNode*> shortestPath(int startID, int goalID, std::vector<GraphNode*> nodeGraph, Heuristic* heuristic){
 
-    // Initialize the start node
-    GraphNode* start = nodeGraph[startID];
-    GraphNode* goal = nodeGraph[goalID];
+std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vector<GraphNode*> nodeGraph, Heuristic* heuristic){
+
 
     start->g = 0;
     start->h = heuristic->f(start);
@@ -52,7 +50,7 @@ std::vector<GraphNode*> shortestPath(int startID, int goalID, std::vector<GraphN
         current->visited = true;
 
         // Check if we have reached the goal
-        if(current->id == goalID){
+        if(current->id == goal->id){
             return reconstructPath(current);
         }
 
@@ -87,5 +85,15 @@ std::vector<GraphNode*> shortestPath(int startID, int goalID, std::vector<GraphN
     // If the open set is empty, there is no path
     return std::vector<GraphNode*>();
 }
+
+std::vector<GraphNode*> shortestPath(int startID, int goalID, std::vector<GraphNode*> nodeGraph, Heuristic* heuristic){
+
+    // Initialize the start node
+    GraphNode* start = nodeGraph[startID];
+    GraphNode* goal = nodeGraph[goalID];
+
+    return shortestPath(start, goal, nodeGraph, heuristic);
+}
+    
 
 #endif
