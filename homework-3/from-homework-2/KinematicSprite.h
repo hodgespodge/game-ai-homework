@@ -21,6 +21,8 @@ public:
         linearAcceleration = sf::Vector2f(0.0f, 0.0f);
         angularVelocity = 0.0f;
         angularAcceleration = 0.0f;
+
+        setOrigin(getLocalBounds().width / 2, getLocalBounds().height / 2);
     }
 
     // Destructor
