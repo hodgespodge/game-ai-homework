@@ -60,17 +60,12 @@ int main(int argc, char *argv[])
     // initialize the map drawer
     MapDrawer mapDrawer(indoorMap, graph, rooms , scale);
 
-    int numBreadCrumbs;
-    bool drawBreadcrumbs;
-    bool fadeBreadcrumbs;
-    bool drawID;
-
     SteeringBehavior* steeringBehavior = new PathFollower(window, graph, rooms);
 
-    numBreadCrumbs = steeringBehavior->numBreadCrumbs;
-    drawBreadcrumbs = steeringBehavior->drawBreadcrumbs;
-    fadeBreadcrumbs = steeringBehavior->fadeBreadcrumbs;
-    drawID = steeringBehavior->drawID;
+    int numBreadCrumbs = 30;
+    bool drawBreadcrumbs = true;
+    bool fadeBreadcrumbs = true;
+    bool drawID = false;
 
     Boid* sprite = new Boid(numBreadCrumbs, 1.0);
 
@@ -110,7 +105,6 @@ int main(int argc, char *argv[])
         if (clock.getElapsedTime().asMilliseconds() > updateFrames)
         {
            
-
             steeringBehavior->updateSprite(*sprite, clock.getElapsedTime().asMilliseconds() );
             
             clock.restart();
@@ -120,7 +114,7 @@ int main(int argc, char *argv[])
         window.clear(sf::Color::White);
         mapDrawer.drawFloors(window);
         mapDrawer.drawMap(window);
-        mapDrawer.drawOverlay(window);
+        // mapDrawer.drawOverlay(window);
 
         if (drawBreadcrumbs)
         {
@@ -139,7 +133,10 @@ int main(int argc, char *argv[])
 
         window.display();
     }
-    
+
+    // delete anything that needs to be deleted
+    delete sprite;
+    delete steeringBehavior;
 
     return 0;
 }

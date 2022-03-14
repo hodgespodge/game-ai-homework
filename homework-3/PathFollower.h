@@ -38,6 +38,7 @@ class PathFollower : public SteeringBehavior
         bool drawBreadcrumbs = true;
         bool fadeBreadcrumbs = true;
         bool drawID = false;
+        float navSpeed = 0.2;
 
         PathFollower(sf::RenderWindow& window, std::vector<GraphNode*> graph, std::vector<room> rooms){
             this->window = &window;
@@ -47,12 +48,22 @@ class PathFollower : public SteeringBehavior
             start = new GraphNode(-1, 0, 0);
             goal = new GraphNode(-2, 0, 0);
             heuristic = new EuclideanHeuristic(goal);
+            nextNode = NULL;
+
+        }
+
+        ~PathFollower(){
+            delete start;
+            delete goal;
+            delete heuristic;
 
         }
 
         // override the updateSprite function
 
         void updateSprite(Boid& sprite, float elapsedTime){
+
+            sprite.updateBreadcrumbs();
 
             if (needToUpdateGraph) {
                 updateGraph(sprite);
@@ -61,15 +72,8 @@ class PathFollower : public SteeringBehavior
 
                 path = std::list<GraphNode*>(pathVector.rbegin(), pathVector.rend());
 
-                // iterate through path and print
-                // for (std::list<GraphNode*>::iterator it = path.begin(); it != path.end(); ++it) {
-                //     std::cout << "(" << (*it)->x << ", " << (*it)->y << ")" << std::endl;
-                // }
-
                 if (path.size() > 0) {
                     nextNode = path.front();
-                    // std::cout << "next node: " << nextNode->x << ", " << nextNode->y << std::endl;
-
 
                 }else{
                     nextNode = NULL;
@@ -78,19 +82,14 @@ class PathFollower : public SteeringBehavior
             }
 
             // if sprite within 
-            
             if (nextNode != NULL) {
                 float distance = sqrt(pow(sprite.getPosition().x - nextNode->x, 2) + pow(sprite.getPosition().y - nextNode->y, 2));
-                // std::cout << "distance: " << distance << std::endl;
-                // std::cout << "path size: " << path.size() << std::endl;
                 if (distance < 10 && path.size() > 0) {
                 
 
                     path.pop_front();
                     nextNode = path.front();
 
-                    std::cout << "next node: " << nextNode->x << ", " << nextNode->y << std::endl;
-                    
                 }
             }
 
@@ -100,55 +99,53 @@ class PathFollower : public SteeringBehavior
                 sf::Vector2f direction = sf::Vector2f(nextNode->x - sprite.getPosition().x , nextNode->y - sprite.getPosition().y);
     
                 if (magnitude(direction) != 0) {
-                    sprite.linearVelocity = unitVector(direction) * 0.05f;
+                    sprite.linearVelocity = unitVector(direction) * navSpeed;
                     sprite.snapAngleToVelocity();
                 }else{
                     sprite.linearVelocity = sf::Vector2f(0, 0);
                 }
 
-                sprite.updatePosition(elapsedTime);
-
             } else{
                 sprite.linearVelocity = sf::Vector2f(0, 0);
             }
 
+            sprite.updatePosition(elapsedTime);
+
         }
 
         void updateGraph(Boid& sprite){
-            // if target was already set, need to remove the old start and goal nodes
-            
+      
             graph = removeNodeFromGraph(graph,start);
             graph = removeNodeFromGraph(graph,goal);
+
+            // if goal node and start node are in the same room, create 2 edges between them
 
             graph = cleanGraph(graph);
 
             start->x = sprite.getPosition().x;
             start->y = sprite.getPosition().y;
 
-            // print the start node location
-            // std::cout << "Start node: " << start->x << " " << start->y << std::endl;
-
             goal->x = TargetPosition.x;
             goal->y = TargetPosition.y;
 
+            // if goal node and start node are in the same room, create 2 edges between them
+            room startRoom = getRoomFromCoordinates(rooms,start->x, start->y );
+            room goalRoom = getRoomFromCoordinates(rooms,goal->x, goal->y );
+
+
+
             graph = addNodeToGraph(graph, rooms, start);
             graph = addNodeToGraph(graph, rooms, goal);
+            
+            // if goal node and start node are in the same room, create 2 edges between them
+            if (getRoomFromCoordinates(rooms,start->x, start->y ).roomID == getRoomFromCoordinates(rooms,goal->x, goal->y ).roomID) {
+                
+                goal->addNeighbor(start, sqrt(pow(start->x - goal->x, 2) + pow(start->y - goal->y, 2)));
+                start->addNeighbor(goal, sqrt(pow(start->x - goal->x, 2) + pow(start->y - goal->y, 2)));
+
+            }
 
             heuristic->goal=goal;
-
-            // // print the goal's neighboring nodes by printing the locations
-            // for(auto neighbor : goal->neighbors){
-            //     std::cout << "Goal Neighbor: " << neighbor.second->id << ": " << neighbor.second->x << ", " << neighbor.second->y << std::endl;
-
-            // }
-
-            // // print the start's neighboring nodes by printing the locations
-            // for(auto neighbor : start->neighbors){
-            //     std::cout << "Start Neighbor: " << neighbor.second->id << ": " << neighbor.second->x << ", " << neighbor.second->y << std::endl;
-
-            // }
-
- 
 
         }
 
@@ -164,7 +161,6 @@ class PathFollower : public SteeringBehavior
                 TargetPosition = sf::Vector2f(sf::Mouse::getPosition(*window));
                 needToUpdateGraph = true;
 
-                // std::cout << "Target position: " << TargetPosition.x << " " << TargetPosition.y << std::endl;
             }
         }
 

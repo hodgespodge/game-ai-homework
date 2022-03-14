@@ -7,6 +7,7 @@
 #include <iostream>
 #include <set>
 #include <math.h>
+#include <algorithm>
 
 #include "GraphNode.h"
 
@@ -113,6 +114,10 @@ struct room{
     // GraphNode* center;  
 };
 
+bool compareByRoomID(room a, room b){
+    return a.roomID < b.roomID;
+}
+
 struct buildGraphFromMapReturn{
     std::vector<GraphNode*> graph;
     std::vector<room> rooms;
@@ -176,15 +181,15 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
                 newRoom.x2 = x2 * scale;
                 newRoom.y2 = y2 * scale;
 
-                // cout
-                // std::cout << "room " << roomNum << ": " << newRoom.x1 << " " << newRoom.y1 << " " << newRoom.x2 << " " << newRoom.y2 << std::endl;
-
                 newRoom.doors = std::vector<GraphNode*>();
                 rooms.push_back(newRoom);
 
             }
         }
     }
+
+    // sort the rooms by roomID
+    std::sort(rooms.begin(), rooms.end(), compareByRoomID);
 
     // For each node, if it is adjacent to a number on the map, add it to the room
     std::string tile = "";
@@ -200,6 +205,7 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
             // add the node to the room number room
 
             rooms[std::stoi(tile)].doors.push_back(graphNode);
+
         }
 
         // check the map tile below the node
@@ -243,7 +249,6 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
         for(auto node : room.doors){
             for(auto otherNode : room.doors){
                 if(node != otherNode){
-                    // std::cout << "Adding edge from " << node->id << " to " << otherNode->id << std::endl;
                     node->addNeighbor(otherNode, sqrt(pow(node->x - otherNode->x, 2) + pow(node->y - otherNode->y, 2)));
                 }
             }
@@ -257,15 +262,9 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
     return returnStruct;
 }
 
-
-// TODO this function is not working
 room getRoomFromCoordinates(std::vector<room> rooms, int x, int y){
     for(auto room : rooms){
         if(x >= room.x1 && x <= room.x2 && y >= room.y1 && y <= room.y2){
-
-            // print room info
-            // std::cout << "room " << room.roomID << ": " << room.x1 << " " << room.y1 << " " << room.x2 << " " << room.y2 << std::endl;
-
             return room;
         }
     }
@@ -281,7 +280,7 @@ std::vector<GraphNode*> addNodeToGraph(std::vector<GraphNode*> graph, std::vecto
     // add an edge to and from every other node in the room
     for(auto otherNode : room.doors){
         if(otherNode != node){
-            // std::cout << "Adding edge from " << node->id << " to " << otherNode->id << std::endl;
+
             node->addNeighbor(otherNode, sqrt(pow(node->x - otherNode->x, 2) + pow(node->y - otherNode->y, 2)));
             otherNode->addNeighbor(node, sqrt(pow(otherNode->x - node->x, 2) + pow(otherNode->y - node->y, 2)));
         }
@@ -294,12 +293,15 @@ std::vector<GraphNode*> removeNodeFromGraph(std::vector<GraphNode*> graph, Graph
 
     // remove each of the node's neighbor's edges to the node
     for(auto neighbor : node->neighbors){
-        neighbor.second->removeNeighbor(node->id);
+        neighbor.second->removeNeighbor(node);
     }
     // remove the node's edges to its neighbors
     node->neighbors.clear();
+
     node->visited = false;
-    node->parent = nullptr;
+    node->parent = NULL;
+    node->g = INF;
+    node->h = INF;
 
     return graph;
 }
@@ -307,7 +309,9 @@ std::vector<GraphNode*> removeNodeFromGraph(std::vector<GraphNode*> graph, Graph
 std::vector<GraphNode*> cleanGraph(std::vector<GraphNode*> graph){
     for(auto node : graph){
         node->visited = false;
-        node->parent = nullptr;
+        node->parent = NULL;
+        node->g = INF;
+        node->h = INF;
     }
     return graph;
 }

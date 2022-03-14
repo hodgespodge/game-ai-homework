@@ -40,6 +40,11 @@ public:
         text.setColor(sf::Color::Black);
     }
 
+    ~Boid(){
+        breadCrumbTexture.~Texture();
+        
+    }
+
     int getID(){
         return BoidID;
     }

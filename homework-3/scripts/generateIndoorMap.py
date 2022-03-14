@@ -50,6 +50,11 @@ def divideVertically(min_iterations, stop_chance, grid, start_x , start_y , end_
     if min_iterations <= 0:
         if random.random() < stop_chance:
             # Fill up the room with room_number
+
+            if start_x == end_x or start_y == end_y:
+                return grid
+
+
             for i in range(start_y, end_y):
                 for j in range(start_x, end_x):
                     if grid[i][j] == '.':
@@ -93,6 +98,8 @@ def divideHorizontally(min_iterations, stop_chance, grid, start_x , start_y , en
 
     if min_iterations <= 0:
         if random.random() < stop_chance:
+
+
 
             # Fill up the room with room_number
             for i in range(start_y , end_y):

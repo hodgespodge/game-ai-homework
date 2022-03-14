@@ -49,6 +49,16 @@ class GraphNode
             std::cout << "Neighbor not found" << std::endl;
         }
 
+        void removeNeighbor(GraphNode* neighbor){
+            for(auto it = neighbors.begin(); it != neighbors.end(); ++it){
+                if(it->second == neighbor){
+                    neighbors.erase(it);
+                    return;
+                }
+            }
+            std::cout << "Neighbor not found" << std::endl;
+        }
+
         // calling the destructor will delete the entire graph I believe
         ~GraphNode(){
             neighbors.clear();
