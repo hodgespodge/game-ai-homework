@@ -100,7 +100,15 @@ std::vector<std::vector<std::string>> buildMap(std::string mapFile){
     return map;
 }
 
-
+GraphNode* getGraphNodeFromCoordinates(std::vector<GraphNode*> graph, int x, int y){
+    for(auto node : graph){
+        if(node->x == x && node->y == y){
+            return node;
+        }
+    }
+    std::cout << "ERROR: Could not find node from coordinates" << std::endl;
+    return graph[0];
+}
 
 struct room{
     int roomID;
@@ -123,6 +131,7 @@ struct buildGraphFromMapReturn{
     std::vector<room> rooms;
 };
 
+
 buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> map, float scale){
     std::vector<GraphNode*> graph;
 
@@ -130,6 +139,8 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
     buildGraphFromMapReturn returnStruct;
 
+
+    // Get each of the rooms in the map
     for(int i = 0; i < map.size(); i++){
         for(int j = 0; j < map[i].size(); j++){
 
@@ -201,37 +212,66 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
         // check the map tile above the node
         tile = map[y-1][x];
-        if(y > 0 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
-            // add the node to the room number room
+        if(y > 0 && tile != "#" &&  tile != "s" && tile != "g"){
 
-            rooms[std::stoi(tile)].doors.push_back(graphNode);
+            if (tile != "d"){
+                // add the node to the room number room
+                rooms[std::stoi(tile)].doors.push_back(graphNode);
+            } else{
+                // add an edge between the node and the node above it
+                // is necessary because adjacent doors may be in different rooms
+                graphNode->addNeighbor(getGraphNodeFromCoordinates(graph, x, y-1), 1.0f * scale);
+            }
 
         }
 
         // check the map tile below the node
         tile = map[y+1][x];
-        if(y < map.size()-1 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
+        if(y < map.size()-1 && tile != "#" &&  tile != "s" && tile != "g"){
             // add the node to the room number room
 
-            rooms[std::stoi(tile)].doors.push_back(graphNode);
+            if (tile != "d"){
+                // add the node to the room number room
+                rooms[std::stoi(tile)].doors.push_back(graphNode);
+            } else{
+                // add an edge between the node and the node below it
+                // is necessary because adjacent doors may be in different rooms
+                graphNode->addNeighbor(getGraphNodeFromCoordinates(graph, x, y+1), 1.0f * scale);
+            }
 
         }
 
         // check the map tile to the left of the node
         tile = map[y][x-1];
-        if(x > 0 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
+        if(x > 0 && tile != "#" &&  tile != "s" && tile != "g"){
             // add the node to the room number room
 
-            rooms[std::stoi(tile)].doors.push_back(graphNode);
+            if (tile != "d"){
+                // add the node to the room number room
+                rooms[std::stoi(tile)].doors.push_back(graphNode);
+            }else{
+                // add an edge between the node and the node to the left of it
+                // is necessary because adjacent doors may be in different rooms
+                graphNode->addNeighbor(getGraphNodeFromCoordinates(graph, x-1, y), 1.0f * scale);
+                
+            }
 
         }
 
         // check the map tile to the right of the node
         tile = map[y][x+1];
-        if(x < map[y].size()-1 && tile != "#" && tile != "d" && tile != "s" && tile != "g"){
+        if(x < map[y].size()-1 && tile != "#" &&  tile != "s" && tile != "g"){
             // add the node to the room number room
 
-            rooms[std::stoi(tile)].doors.push_back(graphNode);
+            if (tile != "d"){
+                // add the node to the room number room
+                rooms[std::stoi(tile)].doors.push_back(graphNode);
+            } else{
+                // add an edge between the node and the node to the right of it
+                // is necessary because adjacent doors may be in different rooms
+                graphNode->addNeighbor(getGraphNodeFromCoordinates(graph, x+1, y), 1.0f * scale);
+                
+            }
 
         }
     }
