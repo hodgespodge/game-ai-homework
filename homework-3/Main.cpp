@@ -22,6 +22,8 @@ int main(int argc, char *argv[])
     int windowHeight = 900;
     int targetFPS = 40;
 
+    bool drawOverlay = true;
+
     sf::Clock clock;
     sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Demonstrating Steering Behavior");
 
@@ -97,7 +99,18 @@ int main(int argc, char *argv[])
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            steeringBehavior->checkEvent(event);
+            else if (event.type == sf::Event::KeyPressed){
+                if (event.key.code == sf::Keyboard::Space){
+                    drawOverlay = !drawOverlay;
+
+                }
+            }
+            
+            else { 
+                steeringBehavior->checkEvent(event);
+            }
+
+            
             
         }
 
@@ -114,7 +127,10 @@ int main(int argc, char *argv[])
         window.clear(sf::Color::White);
         mapDrawer.drawFloors(window);
         mapDrawer.drawMap(window);
-        // mapDrawer.drawOverlay(window);
+
+        if (drawOverlay){
+            mapDrawer.drawOverlay(window);
+        }
 
         if (drawBreadcrumbs)
         {
