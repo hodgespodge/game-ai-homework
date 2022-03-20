@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     bool drawOverlay = true;
 
     sf::Clock clock;
-    sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Demonstrating Steering Behavior");
+    sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Demonstrating A* Maze Navigation",sf::Style::Close);
 
     std::string indoorMapFile = "graphFiles/indoorMap.csv";
 
