@@ -5,7 +5,7 @@
 This homework project's code is located in the following files:
 - [Main.cpp](/Main.cpp)
   - The main SFML loop for the a* based maze navigator
-  - ISSUE: If Main segfaults when loading the indoor map, re-run `python3 generateIndoorMap.py`. This happens roughly 1 in 3 times.
+  - ISSUE: If Main segfaults when loading the indoor map, re-run `python3 generateIndoorMap.py`. This happens for roughly 1 in 3 randomly generated maps. 
 
 - [SearchFunctions.h](/SearchFunctions.h)
   - Graph search functions for shortest path
@@ -38,7 +38,7 @@ This homework project's code is located in the following files:
 
 - [generateIndoorMap.py](/scripts/generateIndoorMap.py)
   - Python script for randomly generating a csv representation of a walled interior space of many rooms
-  - ISSUE: If Main segfaults when loading the indoor map, re-run `python3 generateIndoorMap.py`. This happens roughly 1 in 3 times.
+  - ISSUE: If Main segfaults when loading the indoor map, re-run `python3 generateIndoorMap.py`. This happens for roughly 1 in 3 randomly generated maps. 
 
 
 
