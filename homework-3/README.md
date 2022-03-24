@@ -5,8 +5,9 @@
 This homework project's code is located in the following files:
 - [Main.cpp](/Main.cpp)
   - The main SFML loop for the a* based maze navigator
-  - ISSUE: If Main segfaults when loading the indoor map, re-run `python3 generateIndoorMap.py`. This happens for roughly 1 in 3 randomly generated maps. 
-
+    - ISSUE: If Main segfaults when loading the indoor map, re-run `python3 generateIndoorMap.py`. This happens for roughly 1 in 3 randomly generated maps. 
+  - Also the main runner for the non-gui graph search
+  
 - [SearchFunctions.h](/SearchFunctions.h)
   - Graph search functions for shortest path
 
@@ -40,9 +41,6 @@ This homework project's code is located in the following files:
   - Python script for randomly generating a csv representation of a walled interior space of many rooms
   - ISSUE: If Main segfaults when loading the indoor map, re-run `python3 generateIndoorMap.py`. This happens for roughly 1 in 3 randomly generated maps. 
 
-
-
-
 ## How to compile and run:
 
 Makefile is included at [Makefile](/Makefile)
@@ -50,11 +48,13 @@ Makefile is included at [Makefile](/Makefile)
 - To make (automatically cleans up old object files and executables):
   - `make`
 - To Run:
-  - `./Main`
+  - `./Main a*` Find a path through one of the premade mazes using a*
+  - `./Main dijkstra` Find a path through one of the premade mazes using dijkstra's algo
+  - `./Main manypath` Find a path through one of the premade mazes using the many-paths heuristic
+  - `./Main manhattan` Find a path through one of the premade mazes using the manhattan distance heuristic
+  - `./Main` Run the interactive maze navigator 
 
 ## Customization:
-
-Params for each ot the Steering Behavior demos are located in their respective files. 
 
 You may wish to modify the following variables in the main loop
 
