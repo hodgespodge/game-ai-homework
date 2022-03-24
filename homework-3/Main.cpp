@@ -31,44 +31,45 @@ MAZE
 
 int demonstrateGraphSearch(enum SearchType searchType){
 
-    std::string edgesFile;
-    std::string nodesFile;
+    std::string edgesFile = "none";
+    std::string nodesFile = "none";
 
 
-    std::cout << "Would you like to test on the big graph or the small graph? (b/s): ";
+    std::cout << "Would you like to test on the big graph, the custom graph, or generate a new graph? (b/c/s): ";
     char graphChoice;
     std::cin >> graphChoice;
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::cout << std::endl;
 
-    if (graphChoice == 'b' || graphChoice == 'B')
-    {
-        std::cout << "Loading the big graph..." << std::endl;
-        edgesFile = "graphFiles/big_edges.csv";
-        nodesFile = "graphFiles/big_nodes.csv";
-    }else{
-        std::cout << "Loading the small graph..." << std::endl;
-        edgesFile = "graphFiles/edges.csv";
-        nodesFile = "graphFiles/nodes.csv";
-    }
-
-    // check using stat to see if the files exist
-    struct stat buffer;
-    if (stat(edgesFile.c_str(), &buffer) != 0 || stat(nodesFile.c_str(), &buffer) != 0) {
-        
-        // if the folder doesn't exist, create it
-        if (mkdir("graphFiles", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) != 0)
+    while(strcmp(edgesFile.c_str(),"none") == 0){
+        if (graphChoice == 'b' || graphChoice == 'B')
         {
-            std::cout << "Error creating graphFiles folder" << std::endl;
-            return 1;
+            std::cout << "Loading the big graph..." << std::endl;
+            edgesFile = "graphFiles/big_edges.csv";
+            nodesFile = "graphFiles/big_nodes.csv";
+        }else if (graphChoice == 'c' || graphChoice == 'C')
+        {
+            std::cout << "Loading the custom graph..." << std::endl;
+            edgesFile = "graphFiles/custom_edges.csv";
+            nodesFile = "graphFiles/custom_nodes.csv";
+        }else if (graphChoice == 's' || graphChoice == 'S')
+        {
+            // Call randomDigraph.py to generate the files
+            std::string command = "python3 scripts/generateDigraph.py";
+
+            // Run the command. If it fails, print an error message and exit
+            if(system(command.c_str()) != 0){
+                return 1;
+            }
+
+            edgesFile = "graphFiles/edges.csv";
+            nodesFile = "graphFiles/nodes.csv";
         }
-
-        // Call randomDigraph.py to generate the files
-        std::string command = "python3 scripts/generateDigraph.py";
-
-        // Run the command. If it fails, print an error message and exit
-        if(system(command.c_str()) != 0){
-            return 1;
+        else{
+            std::cout << "Invalid input. Please enter b, c, or s: ";
+            std::cin >> graphChoice;
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << std::endl;
         }
     }
 
@@ -123,8 +124,23 @@ int demonstrateGraphSearch(enum SearchType searchType){
     // Get the end time
     auto end = std::chrono::high_resolution_clock::now();
 
-    // Print out the time it took to execute
-    std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " milliseconds" << std::endl;
+    // Print out the number of seconds it took to run the search
+    std::cout << "Time to run search: " << std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count() * 1e-9 << " seconds" << std::endl;
+
+
+    // std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << " milliseconds" <<   std::endl;
+
+    int nodes_visited = 0;
+    // for each node in the graph, check if it was visited
+    for (int i = 0; i < graph.size(); i++)
+    {
+        if (graph[i]->visited)
+        {
+            nodes_visited++;
+        }
+    }
+
+    std::cout << "Nodes visited: " << nodes_visited << std::endl;
 
     std::cout << "Path from " << startID << " to " << goalID << ": ";
 
