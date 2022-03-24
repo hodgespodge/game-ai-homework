@@ -276,12 +276,17 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
         }
     }
 
+    float wallOffset = 5.0f;
+
     // for each node, multiply its position by the scale factor
     for(auto node : graph){
         
         node->x *= scale;
         node->y *= scale;
         
+        node->x -= wallOffset;
+        node->y -= wallOffset;
+
     }
 
     // for each node in each room, add an edge to every other node in the room with a cost equal to the euclidean distance between the two nodes

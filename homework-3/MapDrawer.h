@@ -37,11 +37,71 @@ public:
         for(int i = 0; i < map.size(); i++){
             for(int j = 0; j < map[i].size(); j++){
                 if(map[i][j] == "#"){
-                    sf::RectangleShape rect(sf::Vector2f(scale, scale));
-                    rect.setPosition(j*scale - scale/2, i*scale - scale/2);
-                    // rect.setPosition(j*scale , i*scale );
-                    rect.setFillColor(sf::Color::Black);
-                    walls.push_back(rect);
+
+                    // wall to the right
+                    bool wall_right = false;
+                    // wall below
+                    bool wall_below = false;
+
+                    bool wall_below_and_left = false;
+                    bool wall_below_and_right = false;
+
+                    // if there is a wall to the right,
+                    if(j+1 < map[i].size() && map[i][j+1] == "#"){
+                        wall_right = true;
+                    }
+
+                    // if there is a wall below,
+                    if(i+1 < map.size() && map[i+1][j] == "#"){
+                        wall_below = true;
+                    }
+
+                    // if there is a wall below and to the left,
+                    if(i+1 < map.size() && j-1 >= 0 && map[i+1][j-1] == "#"){
+                        wall_below_and_left = true;
+                    }
+
+                    // if there is a wall below and to the right,
+                    if(i+1 < map.size() && j+1 < map[i].size() && map[i+1][j+1] == "#"){
+                        wall_below_and_right = true;
+                    }
+
+                    if (wall_right){
+                        sf::RectangleShape rect(sf::Vector2f(scale,scale/2));
+                        rect.setPosition(j*scale - scale/2, i*scale - scale/2);
+                        rect.setFillColor(sf::Color::Black);
+                        walls.push_back(rect);
+
+                    } if (wall_below){
+                        sf::RectangleShape rect(sf::Vector2f(scale/2,scale));
+                        rect.setPosition(j*scale - scale/2, i*scale - scale/2);
+                        rect.setFillColor(sf::Color::Black);
+                        walls.push_back(rect);
+
+                    } if (!wall_right && !wall_below){
+
+                        if (wall_below_and_left){
+                            sf::RectangleShape rect(sf::Vector2f(scale/2,scale*1.70));
+                            rect.setPosition(j*scale - scale/2, i*scale - scale/2);
+
+                            rect.rotate(45);
+                            
+                            rect.setFillColor(sf::Color::Black);
+                            walls.push_back(rect);
+
+                        }
+
+                        if (wall_below_and_right){
+                            sf::RectangleShape rect(sf::Vector2f(scale/2,scale*1.70));
+                            rect.setPosition(j*scale - scale/2, i*scale - scale/2);
+
+                            rect.rotate(-45);
+                            
+                            rect.setFillColor(sf::Color::Black);
+                            walls.push_back(rect);
+
+                        }
+                    }
                 }
 
             }
