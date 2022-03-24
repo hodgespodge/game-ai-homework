@@ -48,7 +48,7 @@ Makefile is included at [Makefile](/Makefile)
 - To make (automatically cleans up old object files and executables):
   - `make`
 - To Run:
-  - `./Main a*` Find a path through one of the premade mazes using a*
+  - `./Main a*` Find a path through one of the premade mazes using a* (euclidean heuristic)
   - `./Main dijkstra` Find a path through one of the premade mazes using dijkstra's algo
   - `./Main manypath` Find a path through one of the premade mazes using the many-paths heuristic
   - `./Main manhattan` Find a path through one of the premade mazes using the manhattan distance heuristic
