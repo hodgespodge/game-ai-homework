@@ -17,7 +17,7 @@ public:
     }
 
     // returns the heuristic value of the node
-    virtual float f(GraphNode* node) = 0;
+    virtual float h(GraphNode* node) = 0;
 
     // destructor
     virtual ~Heuristic(){

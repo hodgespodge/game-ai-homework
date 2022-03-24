@@ -31,7 +31,7 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
 
 
     start->g = 0;
-    start->h = heuristic->f(start);
+    start->h = heuristic->h(start);
 
     // Sort the open set by f(n) = g(n) + h(n)
     std::set<std::pair<float, GraphNode*>> open;
@@ -67,7 +67,7 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
                 if(cost < neighbor->g){
                     // Update the neighbor's cost
                     neighbor->g = cost;
-                    neighbor->h = heuristic->f(neighbor);
+                    neighbor->h = heuristic->h(neighbor);
                     neighbor->parent = current;
 
                     // If the neighbor is not in the open set

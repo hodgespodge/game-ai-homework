@@ -11,7 +11,7 @@ public:
     EuclideanHeuristic(GraphNode* goal) : Heuristic(goal) {
     };
 
-    float f(GraphNode* node)
+    float h(GraphNode* node)
     {
 
         int x_diff = node->x - goal->x;

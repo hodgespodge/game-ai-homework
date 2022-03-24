@@ -10,7 +10,7 @@ public:
     DijkstraHeuristic(GraphNode* goal) : Heuristic(goal) {
     };
 
-    float f(GraphNode* node)
+    float h(GraphNode* node)
     {
         return 0;
     }

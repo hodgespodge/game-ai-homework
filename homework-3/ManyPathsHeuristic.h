@@ -33,7 +33,7 @@ public:
     }
     
     // favor nodes that have more neighbors
-    float f(GraphNode* node){
+    float h(GraphNode* node){
         
         return average_edge_cost/(1+node->neighbors.size());
     }
