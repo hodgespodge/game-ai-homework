@@ -79,6 +79,24 @@ int demonstrateGraphSearch(enum SearchType searchType){
     int startID = 0;
     int goalID = graph.size() - 1;
 
+    std::cout << "Would you like to use the default start and goal nodes? (y/n): ";
+    char defaultNodes;
+    std::cin >> defaultNodes;
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    std::cout << std::endl;
+
+    if(defaultNodes == 'n'){
+        std::cout << "Enter the start node ID: ";
+        std::cin >> startID;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << std::endl;
+
+        std::cout << "Enter the goal node ID: ";
+        std::cin >> goalID;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << std::endl;
+    }
+
     Heuristic* heuristic;
 
     auto start = std::chrono::high_resolution_clock::now();
