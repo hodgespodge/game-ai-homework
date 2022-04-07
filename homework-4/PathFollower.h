@@ -34,6 +34,9 @@ class PathFollower : public SteeringBehavior
 
         bool needToUpdateGraph = false;
 
+        VariableMap * locals;
+        DTNode * tree;
+
     public:        
     
         int numBreadCrumbs = 10;
@@ -58,12 +61,16 @@ class PathFollower : public SteeringBehavior
             heuristic = new EuclideanHeuristic(goal);
             nextNode = NULL;
 
+            locals = initLocals();
+            tree = createTree(locals);
+
         }
 
         ~PathFollower(){
             delete start;
             delete goal;
             delete heuristic;
+            delete locals;
 
         }
 
@@ -120,8 +127,6 @@ class PathFollower : public SteeringBehavior
                         localPathEnd = sf::Vector2f(nextNode->x, nextNode->y);
                     }
 
-                    // localPathStart = sprite.getPosition();
-                    // localPathEnd = sf::Vector2f(nextNode->x, nextNode->y);
 
                 } else if (distance < doorOuterRadius) {
                     // reduce velocity distance to door;
@@ -188,8 +193,6 @@ class PathFollower : public SteeringBehavior
             // if goal node and start node are in the same room, create 2 edges between them
             room startRoom = getRoomFromCoordinates(rooms,start->x, start->y );
             room goalRoom = getRoomFromCoordinates(rooms,goal->x, goal->y );
-
-
 
             graph = addNodeToGraph(graph, rooms, start);
             graph = addNodeToGraph(graph, rooms, goal);

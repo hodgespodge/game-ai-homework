@@ -17,6 +17,8 @@
 #include "from-homework-2/SteeringBehavior.h"
 #include "PathFollower.h"
 
+#include "decisionTree/LocalNavTree.h"
+
 
 int demonstrateMazeNavigation(bool new_map){
 
@@ -91,7 +93,6 @@ int demonstrateMazeNavigation(bool new_map){
     sprite->setPosition(100, 100);
     sprite->setID(0);
 
-
     // frames per update
     int updateFrames = 1000/targetFPS;
 
@@ -124,7 +125,7 @@ int demonstrateMazeNavigation(bool new_map){
         if (clock.getElapsedTime().asMilliseconds() > updateFrames)
         {
            
-            steeringBehavior->updateSprite(*sprite, clock.getElapsedTime().asMilliseconds() );
+            steeringBehavior->updateSprite(*sprite, clock.getElapsedTime().asMilliseconds());
             
             clock.restart();
         }

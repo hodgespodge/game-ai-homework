@@ -11,27 +11,49 @@ class DTNode
 public:
 
     bool isLeaf;
-    
+    int leaf_id;
 
     // Constructor
-    DTNode(std::function<bool(std::unordered_map<std::string, std::any>&)> bool_function, std::unordered_map<std::string, std::any>* variables, bool isLeaf){
+    DTNode(std::function<bool(std::unordered_map<std::string, std::any>&)> bool_function, std::unordered_map<std::string, std::any>* variables, int leaf_id){
         this->bool_function = bool_function;
         this->variables = variables;
-        this->isLeaf = isLeaf;
-        this->children = std::vector<DTNode*>();
-        
+        this->children = std::vector<DTNode*>(); 
+        this->leaf_id = leaf_id;
+        if(leaf_id >= 0){
+            this->isLeaf = true;
+        }
+        else{
+            this->isLeaf = false;
+        }
     }
 
     void AddChild(DTNode* child){
         children.push_back(child);
     }
 
-    // void 
+    int evaluate(){
 
-    // evaluate()
+        if(isLeaf){
+            return leaf_id;
+        }
+
+        for (auto child : children){
+            if (child->bool_function(*variables)){
+                return child->evaluate();
+            }
+        }
+
+        return -1;
+    }
 
     // Destructor
-    ~DTNode();
+    ~DTNode(){
+        for (auto child : children){
+            delete child;
+        }
+
+        delete variables;        
+    }
 
 private:
 
@@ -40,8 +62,7 @@ private:
 
     // the boolean function to evaluate
     std::function<bool(std::unordered_map<std::string, std::any>&)> bool_function;
-    // std::unordered_map<std::string, std::any>& evaluation_function;
-    
+
     std::vector <DTNode*> children;
 
 };
