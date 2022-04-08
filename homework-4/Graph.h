@@ -120,6 +120,11 @@ struct room{
 
     std::vector<GraphNode*> doors;
     // GraphNode* center;  
+
+    bool contains(int x, int y){
+        return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
+    }
+
 };
 
 bool compareByRoomID(room a, room b){
@@ -309,9 +314,11 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
 room getRoomFromCoordinates(std::vector<room> rooms, int x, int y){
     for(auto room : rooms){
-        if(x >= room.x1 && x <= room.x2 && y >= room.y1 && y <= room.y2){
+
+        if (room.contains(x, y)){
             return room;
         }
+
     }
     std::cout << "ERROR: Could not find room from coordinates" << std::endl;
     return rooms[0];
