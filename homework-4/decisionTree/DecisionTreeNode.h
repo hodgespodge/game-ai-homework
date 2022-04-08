@@ -37,10 +37,15 @@ public:
             return leaf_id;
         }
 
+        int index = 0;
+        int num_children = children.size();
+
         for (auto child : children){
-            if (child->bool_function(*variables)){
+            if ( index == num_children ||  child->bool_function(*variables)){
                 return child->evaluate();
             }
+
+            index++;
         }
 
         return -1;
