@@ -58,6 +58,7 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp",
         "list": "cpp",
-        "any": "cpp"
+        "any": "cpp",
+        "*.temp": "cpp"
     }
 }

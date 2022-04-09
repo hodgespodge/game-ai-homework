@@ -134,6 +134,7 @@ int demonstrateMazeNavigation(bool new_map){
         window.clear(sf::Color::White);
         mapDrawer.drawFloors(window);
         mapDrawer.drawMap(window);
+        mapDrawer.drawObstacles(window);
 
         if (drawOverlay){
             mapDrawer.drawOverlay(window);

@@ -10,6 +10,7 @@
 #include <algorithm>
 
 #include "GraphNode.h"
+#include "Room.h"
 
 // functions for building a graph of Nodes
 
@@ -110,27 +111,6 @@ GraphNode* getGraphNodeFromCoordinates(std::vector<GraphNode*> graph, int x, int
     return graph[0];
 }
 
-struct room{
-    int roomID;
-    int x1; // the x coordinate of the top left corner of the room
-    int y1; // the y coordinate of the top left corner of the room
-
-    int x2; // the x coordinate of the bottom right corner of the room
-    int y2; // the y coordinate of the bottom right corner of the room
-
-    std::vector<GraphNode*> doors;
-    // GraphNode* center;  
-
-    bool contains(int x, int y){
-        return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
-    }
-
-};
-
-bool compareByRoomID(room a, room b){
-    return a.roomID < b.roomID;
-}
-
 struct buildGraphFromMapReturn{
     std::vector<GraphNode*> graph;
     std::vector<room> rooms;
@@ -149,10 +129,10 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
     for(int i = 0; i < map.size(); i++){
         for(int j = 0; j < map[i].size(); j++){
 
-            
             if(map[i][j] == "d"){
                 graph.push_back(new GraphNode(i*map[i].size() + j, j, i));
             }
+
             // if the string starts with an 'r'
             else if (map[i][j].at(0) == 'r'){
 
@@ -206,6 +186,21 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
     // sort the rooms by roomID
     std::sort(rooms.begin(), rooms.end(), compareByRoomID);
+
+    // get each of the obstacles in the map
+    for(int i = 0; i < map.size(); i++){
+        for(int j = 0; j < map[i].size(); j++){
+
+            if(map[i][j] == "O"){
+
+                float random_obstacle_size = 0.2* scale * (rand() % 3) + 4;
+
+                rooms[getRoomFromCoordinates(rooms, j*scale, i*scale).roomID].obstacles.push_back({sf::Vector2f(j*scale,i*scale), random_obstacle_size});
+
+            }
+        }
+    }
+
 
     // For each node, if it is adjacent to a number on the map, add it to the room
     std::string tile = "";
@@ -312,17 +307,6 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
     return returnStruct;
 }
 
-room getRoomFromCoordinates(std::vector<room> rooms, int x, int y){
-    for(auto room : rooms){
-
-        if (room.contains(x, y)){
-            return room;
-        }
-
-    }
-    std::cout << "ERROR: Could not find room from coordinates" << std::endl;
-    return rooms[0];
-}
 
 std::vector<GraphNode*> addNodeToGraph(std::vector<GraphNode*> graph, std::vector<room> rooms, GraphNode* node){
 

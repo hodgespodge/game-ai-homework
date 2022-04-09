@@ -22,6 +22,7 @@ public:
     std::vector<sf::RectangleShape> floors;
     std::vector<sf::CircleShape> circles;
     std::vector<sf::RectangleShape> lines;
+    std::vector<sf::CircleShape> obstacles;
 
     std::vector<sf::Text> door_numbers;
     std::vector<sf::Text> room_numbers;
@@ -160,6 +161,14 @@ public:
             rect.setFillColor(color);
             floors.push_back(rect);
 
+            // for each obstacle in the room, draw a circle
+            for(std::pair<sf::Vector2f, float> obstacle : room.obstacles){
+                sf::CircleShape circle(obstacle.second);
+                circle.setPosition(obstacle.first.x - scale/2, obstacle.first.y - scale/2);
+                circle.setFillColor(sf::Color::Red);
+                obstacles.push_back(circle);
+            }
+
             // for each room, draw a text with the room's ID
             sf::Text text;
 
@@ -182,6 +191,7 @@ public:
         floors.clear();
         door_numbers.clear();
         room_numbers.clear();
+        obstacles.clear();
     }
 
     sf::RectangleShape lineBetweenPoints(sf::Vector2f start, sf::Vector2f end, float thickness){
@@ -212,6 +222,14 @@ public:
             window.draw(floors[i]);
         } 
     }
+
+    void drawObstacles(sf::RenderWindow& window){
+        
+        for(int i = 0; i < obstacles.size(); i++){
+            window.draw(obstacles[i]);
+        }
+    }
+
 
     void drawOverlay(sf::RenderWindow& window){
         // for each node in Nodes, draw a circle at the node's position
@@ -247,7 +265,6 @@ public:
             }
         }
     }
-
     
 
 };

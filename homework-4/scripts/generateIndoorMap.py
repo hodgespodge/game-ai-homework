@@ -59,8 +59,14 @@ def divideVertically(min_iterations, stop_chance, grid, start_x , start_y , end_
                 for j in range(start_x, end_x):
                     if grid[i][j] == '.':
                         
-                        # grid[i][j] = str(id).ljust(2)
                         grid[i][j] = str(id) + ','
+                        
+                        # 10 % chance of placing an obstacle
+                        if random.random() < 0.1:
+                            # if not along an edge
+                            if i > start_y + 1 and i < end_y - 1 and j > start_x + 1 and j < end_x - 1:
+                                grid[i][j] = 'O,'
+                        
 
             # place an 'r' in the center of the room
             grid[(start_y + end_y) // 2][(start_x + end_x) // 2] = 'r'+str(id)+','
@@ -107,6 +113,12 @@ def divideHorizontally(min_iterations, stop_chance, grid, start_x , start_y , en
                         # grid[i][j] = str(id).ljust(2)
                         grid[i][j] = str(id) + ','
             
+                        # 10 % chance of placing an obstacle
+                        if random.random() < 0.1:
+                            # if not along an edge
+                            if i > start_y + 1 and i < end_y - 1 and j > start_x + 1 and j < end_x - 1:
+                                grid[i][j] = 'O,'
+
 
             # place an 'r' in the center of the room
             grid[(start_y + end_y) // 2][(start_x + end_x) // 2] = 'r'+str(id)+','

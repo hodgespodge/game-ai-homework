@@ -12,6 +12,7 @@
 #include "SearchFunctions.h"
 #include <list>
 #include "decisionTree/LocalNavTree.h"
+#include "decisionTree/ExposedVariables.h"
 #include "LocalNavFunctions.h"
 
 class PathFollower : public SteeringBehavior
@@ -26,7 +27,11 @@ class PathFollower : public SteeringBehavior
 
         GraphNode* nextGlobalNode = NULL;
 
+
         sf::Vector2f globalTargetPosition;
+        sf::Vector2f localTargetPosition;
+        sf::Vector2f enemyPosition;
+
         std::vector<GraphNode*> graph;
         std::vector<room> rooms;
 
@@ -40,8 +45,13 @@ class PathFollower : public SteeringBehavior
 
         room currentRoom;
 
-        VariableMap * locals;
+        ExposedVariables * locals;
         DTNode * tree;
+
+        u_short update_number = 0;
+
+        int decision = 0;
+
 
     public:        
     
@@ -56,6 +66,8 @@ class PathFollower : public SteeringBehavior
 
         float doorInnerRadius = 10;
         float doorOuterRadius = 100;
+        
+        
 
         PathFollower(sf::RenderWindow& window, std::vector<GraphNode*> graph, std::vector<room> rooms){
             this->window = &window;
@@ -67,11 +79,12 @@ class PathFollower : public SteeringBehavior
             heuristic = new EuclideanHeuristic(goal);
             nextGlobalNode = NULL;
 
-            locals = initLocals();
+            locals = new ExposedVariables();
+
             tree = createTree(locals);
 
-            // set Target Position to a random point on the screen
-            globalTargetPosition = sf::Vector2f(rand() % window.getSize().x, rand() % window.getSize().y);
+            // set Target Position to the current position
+            globalTargetPosition = sf::Vector2f(rand() % 200, rand() % 200);
             needToUpdateGraph = true;
         }
 
@@ -102,10 +115,7 @@ class PathFollower : public SteeringBehavior
 
             sprite.updateBreadcrumbs();
 
-            // update locals
-            locals->at("sprite") = sprite;
-
-            sf::Vector2f spritePos = sprite.getPosition();            
+            sf::Vector2f spritePos = sprite.getPosition();
 
             if (needToUpdateGraph) {
                 updateGraph(sprite);
@@ -114,20 +124,18 @@ class PathFollower : public SteeringBehavior
 
                 globalPath = std::list<GraphNode*>(globalPathVector.rbegin(), globalPathVector.rend());
 
-                // update locals
-                locals->at("globalPath") = globalPath;
-
                 if (globalPath.size() > 0) {
                     
+                    // //print each node in global path
+                    // for (GraphNode* node : globalPath) {
+                    //     //print location
+                    //     std::cout << "(" << node->x << ", " << node->y << ")" << std::endl;
+                    // }
+
+
+                    globalPath.pop_front();
                     nextGlobalNode = globalPath.front();
 
-                    // update locals
-                    // currentRoom = getRoomFromCoordinates( rooms, spritePos.x, spritePos.y);
-                    // locals->at("current_room") = currentRoom;
-
-                    // if (nextGlobalNode!= NULL) {
-
-                    // 
 
                     sf::Vector2f localPathStart = spritePos;
                     sf::Vector2f localPathEnd = sf::Vector2f(nextGlobalNode->x, nextGlobalNode->y);
@@ -136,12 +144,19 @@ class PathFollower : public SteeringBehavior
                     sf::Vector2f midwayPoint = localPathStart + (localPathEnd - localPathStart) / 2.0f;
                     room localRoom = getRoomFromCoordinates(rooms, midwayPoint.x, midwayPoint.y);
 
+                    // Obstacles localObstacles = localRoom.obstacles;
 
-                    localPath = getPathThroughRoom(localPathStart, localPathEnd, localRoom );
+                    std::vector<sf::Vector2f> localPathVector = getPathThroughRoom(localPathStart, localPathEnd, localRoom, localRoom.obstacles);
+                    localPath = std::list<sf::Vector2f>(localPathVector.rbegin(), localPathVector.rend());
 
-                    // update locals
-                    locals->at("local_target") = localPathEnd;
-                    // }
+                    if (localPath.size() > 0) {
+                        localPath.pop_front();
+                        localTargetPosition = localPath.front();
+        
+                    }
+
+                    std::cout << "local target position: " << localTargetPosition.x << ", " << localTargetPosition.y << std::endl;
+
 
                 }else{
                     nextGlobalNode = NULL;
@@ -149,73 +164,57 @@ class PathFollower : public SteeringBehavior
 
             }
 
-            // update locals
-            // locals->at("local_target") = localPathEnd;
-            locals->at("local_path") = globalPath;
-            locals->at("enemy_position") = sf::Vector2f(25,100);
+            if (locals->sprite == NULL){
+                locals->sprite = &sprite;
+            }
 
-            int decision = tree->evaluate();
+            if(update_number % 3 == 0){
+                // update locals
 
-            std::cout << "decision: " << decision << std::endl;
+                // locals-> sprite = &sprite;
+                // locals-> local_target = localTargetPosition;
+                // locals-> globalPath = globalPath;
+                // locals-> localPath = localPath;
+                // locals-> current_room = currentRoom;
+                // locals-> enemy_position = enemyPosition;
 
-            // if (nextGlobalNode != NULL) {
-            //     float distance = sqrt(pow(sprite.getPosition().x - nextGlobalNode->x, 2) + pow(sprite.getPosition().y - nextGlobalNode->y, 2));
-            //     if (distance < doorInnerRadius && globalPath.size() > 0) {
+                decision = tree->evaluate();
+
+                std::cout << "decision: " << decision << std::endl;
+            }
+
+            switch(decision){
+                case 0:
+                    std::cout << "Get new path + target" << std::endl;
+
+                    // Need to re-think this
+                    //
+
+                    break;
+                case 1:
+                    std::cout << "get next target" << std::endl;
+
+                    if(localPath.size() > 0){
+                        localPath.pop_front();
+                        localTargetPosition = localPath.front();
+                        locals->local_target = localTargetPosition;
+                    }
+
+                    break;
+                case 2:
+                    std::cout << "calculate new path" << std::endl;
+                    break;
+                case 3:
+                    std::cout << "follow path" << std::endl;
+                    break;
                 
-
-            //         globalPath.pop_front();
-            //         nextGlobalNode = globalPath.front();
-
-            //         if (nextGlobalNode!= NULL) {
-            //             localPathStart = sprite.getPosition();
-            //             localPathEnd = sf::Vector2f(nextGlobalNode->x, nextGlobalNode->y);
-            //         }
-
-
-            //     } else if (distance < doorOuterRadius) {
-            //         // reduce velocity distance to door;
-            //         sprite.linearVelocity = sprite.linearVelocity * 0.95f;
-            //     }
-            // }
-
-            // // move sprite along the straight line globalPath defined by localPathStart and localPathEnd
-            // if (nextGlobalNode != NULL) {
-                
-            //     // find the nearest point on the straight line from the sprite
-            //     sf::Vector2f nearestPoint = findNearestPointOnLine(sprite.getPosition(), localPathStart, localPathEnd);
-
-            //     // get a point on the straight line that is pathOffset units away from the nearest point towards the localPathEnd
-            //     sf::Vector2f targetPoint = sf::Vector2f(nearestPoint.x + (localPathEnd.x - nearestPoint.x) * pathOffset, nearestPoint.y + (localPathEnd.y - nearestPoint.y) * pathOffset);
-
-            //     // get the direction of the target point from the sprite's position
-            //     sf::Vector2f direction = targetPoint - sprite.getPosition();
-
-            //     // normalize the direction vector
-            //     float length = sqrt(pow(direction.x, 2) + pow(direction.y, 2));
-            //     direction = direction / length;
-
-            //     // update the sprite's velocity to move it towards the target point
-            //     sprite.linearVelocity += direction * maxSpeedDelta;
-
-            //     // if the sprite's velocity is greater than the max speed, normalize the velocity to the max speed
-            //     if(magnitude(sprite.linearVelocity) > maxSpeed){
-            //         sprite.linearVelocity = sprite.linearVelocity / magnitude(sprite.linearVelocity) * maxSpeed;
-            //     }
-
-
-            // } else{
-
-            //     if(magnitude(sprite.linearVelocity) > 0.01){
-            //         sprite.linearVelocity = sprite.linearVelocity / magnitude(sprite.linearVelocity) * maxSpeedDelta;
-            //     } else{
-            //         sprite.linearVelocity = sf::Vector2f(0, 0);
-            //     }
-                
-            // }
+            }
 
             sprite.snapAngleToVelocity();
 
             sprite.updatePosition(elapsedTime);
+
+            update_number++;
 
         }
 

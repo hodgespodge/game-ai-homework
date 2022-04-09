@@ -6,9 +6,6 @@
 #include <functional>
 #include <iostream>
 #include "Heuristic.h"
-// #include "DijkstraHeuristic.h"
-// #include "ManyPathsHeuristic.h"
-// #include "EuclideanHeuristic.h"
 
 // Given the final SearchNode, reconstruct the path from the start node to the goal node using the parent pointers
 // and return it as a vector of Node pointers.
