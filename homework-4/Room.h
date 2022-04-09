@@ -24,6 +24,11 @@ struct room{
         return (x >= x1 && x <= x2 && y >= y1 && y <= y2);
     }
 
+    bool contains_with_padding(int x, int y, int padding){
+        return (x >= x1 + padding && x <= x2 - padding && y >= y1 + padding && y <= y2 - padding);
+    
+    }
+
 };
 
 room getRoomFromCoordinates(std::vector<room> rooms, int x, int y){

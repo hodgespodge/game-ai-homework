@@ -193,7 +193,7 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
             if(map[i][j] == "O"){
 
-                float random_obstacle_size = 0.2* scale * (rand() % 3) + 4;
+                float random_obstacle_size = 0.2* scale * (rand() % 2) + 8;
 
                 rooms[getRoomFromCoordinates(rooms, j*scale, i*scale).roomID].obstacles.push_back({sf::Vector2f(j*scale,i*scale), random_obstacle_size});
 

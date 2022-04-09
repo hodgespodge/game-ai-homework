@@ -16,16 +16,16 @@ typedef std::list<std::pair<sf::Vector2f, float>> Obstacles;
 std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f end, room& room, Obstacles obstacles, float jump_distance);
 
 std::vector<sf::Vector2f> getPathThroughRoom(sf::Vector2f start, sf::Vector2f end, room& room, Obstacles obstacles){
-    std::cout << "getPathThroughRoom" << std::endl;
+    // std::cout << "getPathThroughRoom" << std::endl;
 
     float jump_distance = 10;
 
-    // set jumpDistance to the size of the smallest obstacle
-    for (auto it = obstacles.begin(); it != obstacles.end(); ++it){
-        if (it->second < jump_distance){
-            jump_distance = it->second;
-        }
-    }
+    // // set jumpDistance to the size of the smallest obstacle
+    // for (auto it = obstacles.begin(); it != obstacles.end(); ++it){
+    //     if (it->second < jump_distance){
+    //         jump_distance = it->second;
+    //     }
+    // }
 
     // Perform A* search to find the path from start to end in the room with obstacles in it (obstacles) 
     // The path should be a vector of sf::Vector2f
@@ -58,9 +58,11 @@ std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f 
     coordinate start_coordinate = {start.x, start.y};
     coordinate end_coordinate = {end.x, end.y};
 
-    std::cout << "coordinateBasedAStar" << std::endl;
-    std::cout << "navigation start: " << start_coordinate.first << ", " << start_coordinate.second << std::endl;
-    std::cout << "navigation end: " << end_coordinate.first << ", " << end_coordinate.second << std::endl;
+    float obstacle_padding = 6;
+
+    // std::cout << "coordinateBasedAStar" << std::endl;
+    // std::cout << "navigation start: " << start_coordinate.first << ", " << start_coordinate.second << std::endl;
+    // std::cout << "navigation end: " << end_coordinate.first << ", " << end_coordinate.second << std::endl;
 
     std::set<coordinate> openSet;
 
@@ -83,7 +85,7 @@ std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f 
             }
         }
 
-        if (distance(current, end_coordinate) < jump_distance){ // if within range of target
+        if (distance(current, end_coordinate) < jump_distance + 1){ // if within range of target
 
             std::vector<sf::Vector2f> path = std::vector<sf::Vector2f>();
 
@@ -122,13 +124,13 @@ std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f 
 
         for (auto it = neighbors.begin(); it != neighbors.end(); ++it){
 
-            if(!room.contains(it->first, it->second)){
+            if(!room.contains_with_padding(it->first, it->second, obstacle_padding)){
                 continue; // skip this neighbor
             }
 
             // check if the neighbor point is within range of any obstacles using distance
             for (auto obstacle = obstacles.begin(); obstacle != obstacles.end(); ++obstacle){
-                if (distance(coordinate{it->first, it->second}, coordinate{obstacle->first.x, obstacle->first.y}) < obstacle->second){
+                if (distance(coordinate{it->first, it->second}, coordinate{obstacle->first.x, obstacle->first.y}) < obstacle->second - obstacle_padding){
                     continue; // skip this neighbor
                 }
             }
@@ -155,7 +157,7 @@ std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f 
 
     }
 
-    std::cout << "no path found between start" << start.x << "," << start.y << " and end " << end.x << "," << end.y << std::endl;
+    std::cout << "no path found between start " << start.x << "," << start.y << " and end " << end.x << "," << end.y << std::endl;
 
     return std::vector<sf::Vector2f>(); // return empty vector if no path found
 

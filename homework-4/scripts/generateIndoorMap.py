@@ -62,7 +62,7 @@ def divideVertically(min_iterations, stop_chance, grid, start_x , start_y , end_
                         grid[i][j] = str(id) + ','
                         
                         # 10 % chance of placing an obstacle
-                        if random.random() < 0.1:
+                        if random.random() < 0.01:
                             # if not along an edge
                             if i > start_y + 1 and i < end_y - 1 and j > start_x + 1 and j < end_x - 1:
                                 grid[i][j] = 'O,'
@@ -114,7 +114,7 @@ def divideHorizontally(min_iterations, stop_chance, grid, start_x , start_y , en
                         grid[i][j] = str(id) + ','
             
                         # 10 % chance of placing an obstacle
-                        if random.random() < 0.1:
+                        if random.random() < 0.01:
                             # if not along an edge
                             if i > start_y + 1 and i < end_y - 1 and j > start_x + 1 and j < end_x - 1:
                                 grid[i][j] = 'O,'
