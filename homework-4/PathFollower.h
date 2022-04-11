@@ -121,11 +121,13 @@ class PathFollower : public SteeringBehavior
 
             bool no_collision = false;
 
+            int wall_padding = 50;
+
             do {
 
-                // get a random location in the room using x1, x2, y1, y2 with a padding of 15 (so it's not against a wall)
-                x = randomRoom.x1 + (rand() % (randomRoom.x2 - randomRoom.x1 - 15)) + 15;
-                y = randomRoom.y1 + (rand() % (randomRoom.y2 - randomRoom.y1 - 15)) + 15;
+                // get a random location in the room using x1, x2, y1, y2 with a padding
+                x = randomRoom.x1 + wall_padding + (rand() % (randomRoom.x2 - randomRoom.x1 - wall_padding * 2)) ;
+                y = randomRoom.y1 + wall_padding + (rand() % (randomRoom.y2 - randomRoom.y1 - wall_padding * 2)) ;
 
             
                 no_collision = true;
