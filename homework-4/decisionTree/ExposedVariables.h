@@ -13,7 +13,7 @@ public:
 
     Boid * sprite;
     sf::Vector2f local_target;
-    std::list<GraphNode*> globalPath;
+    std::list<sf::Vector2f> globalPath;
     std::list<sf::Vector2f> localPath;
     room current_room;
     sf::Vector2f enemy_position;
@@ -23,7 +23,7 @@ public:
     {
         this->sprite = NULL;
         this->local_target = sf::Vector2f(0,0);
-        this->globalPath = std::list<GraphNode*>();
+        this->globalPath = std::list<sf::Vector2f>();
         this->localPath = std::list<sf::Vector2f>();
         this->current_room = room();
         this->enemy_position = sf::Vector2f(0,0);

@@ -11,6 +11,7 @@
 #include "DecisionTreeNode.h"
 
 
+// float target_range = 5;
 float target_range = 10;
 
 DTNode * createTree(ExposedVariables * variables) {
@@ -67,7 +68,7 @@ DTNode * createTree(ExposedVariables * variables) {
         [](ExposedVariables & variables) -> bool{
             // std::cout << "in the if_global_path_empty" << std::endl;
 
-            std::cout << "returning variables.globalPath.size()" << variables.globalPath.size() << std::endl;
+            // std::cout << "returning variables.globalPath.size()" << variables.globalPath.size() << std::endl;
 
             return variables.globalPath.size() == 0;
         },
@@ -98,7 +99,7 @@ DTNode * createTree(ExposedVariables * variables) {
         [](ExposedVariables & variables) -> bool{
             // std::cout << "in the if_local_path_not_set_OR_enemy_in_room" << std::endl;
             if (variables.localPath.size() == 0) {
-                std::cout << "local path is empty" << std::endl;
+                // std::cout << "local path is empty" << std::endl;
                 return true;
             }
             if (variables.current_room.contains(variables.enemy_position.x, variables.enemy_position.y)) {

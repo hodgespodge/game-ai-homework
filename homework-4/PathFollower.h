@@ -35,7 +35,8 @@ class PathFollower : public SteeringBehavior
         std::vector<GraphNode*> graph;
         std::vector<room> rooms;
 
-        std::list<GraphNode*> globalPath;
+        // std::list<GraphNode*> globalPath;
+        std::list<sf::Vector2f> globalPath;
         std::list<sf::Vector2f> localPath;
         
 
@@ -47,8 +48,15 @@ class PathFollower : public SteeringBehavior
         DTNode * tree;
 
         u_short update_number = 0;
+        bool is_initialized = false;
 
         int decision = 0;
+
+        bool local_pathfinding_success = true;
+
+        u_short max_local_target_update_number = 15;
+        u_short local_target_update_number = 0;
+        sf::Vector2f previousLocalTarget;
 
 
     public:        
@@ -58,15 +66,13 @@ class PathFollower : public SteeringBehavior
         bool drawBreadcrumbs = true;
         bool fadeBreadcrumbs = true;
         bool drawID = false;
-        float pathOffset = 0.2;
-        float maxSpeed = 0.1;
-        float maxSpeedDelta = 0.004;
+        // float pathOffset = 0.2;
+        float maxSpeed = 0.05;
+        float maxSpeedDelta = 0.02;
 
         float doorInnerRadius = 10;
         float doorOuterRadius = 100;
         
-        
-
         PathFollower(sf::RenderWindow& window, std::vector<GraphNode*> graph, std::vector<room> rooms){
             this->window = &window;
             this->graph = graph;
@@ -131,19 +137,95 @@ class PathFollower : public SteeringBehavior
             updateGraph(sprite);
 
             std::vector<GraphNode*> globalPathVector = shortestPath(globalStart, globalGoal, graph, heuristic);
-            globalPath = std::list<GraphNode*>(globalPathVector.rbegin(), globalPathVector.rend());
 
-            localNextTarget = sprite.getPosition();
+            globalPath.clear();
+
+            // reverse for loop through the vector to get the path in the right order
+            for (int i = globalPathVector.size() - 1; i >= 0; i--){
+                globalPath.push_back(sf::Vector2f(globalPathVector[i]->x, globalPathVector[i]->y));
+            }
+            
+            if (globalPath.size() > 0){
+                globalNextTarget = globalPath.front();
+
+            }
+            else{
+                globalNextTarget = sprite.getPosition();
+            }
+
+            localPath.clear();
+
         }
 
         void getNewLocalPath(room localRoom, sf::Vector2f startPos, sf::Vector2f endPos){
+
+            // if 
+
+            if (!localRoom.contains_with_padding(startPos.x, startPos.y, 5)){
+                sf::Vector2f starting_wall = localRoom.getWall(startPos.x, startPos.y, 5);
+
+                if (starting_wall.x == -1 && starting_wall.y == -1){
+                    // std::cout << "could not get starting wall for room" << std::endl;
+                }else{
+
+                    startPos = startPos + starting_wall*10.0f;
+
+                }
+
+            }
+
             std::vector<sf::Vector2f> localPathVector = getPathThroughRoom(startPos, endPos, localRoom, localRoom.obstacles);
-            localPath = std::list<sf::Vector2f>(localPathVector.rbegin(), localPathVector.rend());
 
-            if (localPath.size() == 0){
+            localPath.splice(localPath.end(), std::list<sf::Vector2f>(localPathVector.rbegin(), localPathVector.rend()));
 
-                globalEndPosition = getRandomLocation();
-                needToUpdateGraph = true;
+            if (localPathVector.size() != 0){
+                localPath.emplace_back(endPos);
+                local_pathfinding_success = true;
+            }else{
+                // std::cout << "No local path found between: " << startPos.x << "," << startPos.y << " and " << endPos.x << "," << endPos.y << std::endl;
+                local_pathfinding_success = false;
+            }
+
+        }
+
+        void followLocalPath(Boid& sprite, float elapsedTime){
+
+            if (previousLocalTarget != localNextTarget){
+                previousLocalTarget = localNextTarget;
+                local_target_update_number = 0;
+            } else{
+                local_target_update_number++;
+
+                // std::cout << "local target update number: " << local_target_update_number << std::endl;
+
+                if (local_target_update_number > max_local_target_update_number){
+                    localPath.clear();
+                }
+            }
+
+            sf::Vector2f spritePos = sprite.getPosition();
+
+            sf::Vector2f movementDirection;
+
+            if(localPath.size() == 0){
+                movementDirection = localNextTarget - spritePos;
+            }else{
+                movementDirection = (localNextTarget*0.7f + localPath.front()*0.3f)- spritePos;
+            }
+            
+            if (magnitude(movementDirection) >  0.0f){
+
+                // increase the velocity of the sprite by max velocity change in the direction of the movement
+                sprite.linearVelocity += unitVector(movementDirection)*maxSpeedDelta;
+
+                // if the velocity is greater than the max velocity, set it to the max velocity
+                if (magnitude(sprite.linearVelocity) > maxSpeed){
+                    sprite.linearVelocity = unitVector(sprite.linearVelocity)*maxSpeed;
+                }
+
+                
+            }else {
+                sprite.linearVelocity = sf::Vector2f(0,0);
             }
         }
 
@@ -151,36 +233,33 @@ class PathFollower : public SteeringBehavior
 
             sprite.updateBreadcrumbs();
 
-            if(update_number == 0){
+            if(! is_initialized){
                 localNextTarget = sprite.getPosition();
+                is_initialized = true;
             }
 
-            if(needToUpdateGraph){
+            if (needToUpdateGraph){
                 getNewGlobalPath(sprite);
                 needToUpdateGraph = false;
             }
+            
+            // update locals
 
-            if(update_number % 1 == 0){
-                // update locals
+            locals-> sprite = &sprite;
+            locals-> local_target = localNextTarget;
+            locals-> globalPath = globalPath;
+            locals-> localPath = localPath;
+            locals-> current_room = currentRoom;
+            locals-> enemy_position = enemyPosition;
 
-                locals-> sprite = &sprite;
-                locals-> local_target = localNextTarget;
-                locals-> globalPath = globalPath;
-                locals-> localPath = localPath;
-                locals-> current_room = currentRoom;
-                locals-> enemy_position = enemyPosition;
-
-                decision = tree->evaluate();
-
-                // std::cout << "decision: " << decision << std::endl;
-            }
+            decision = tree->evaluate();
 
             switch(decision){
                 case 0:
                 {
-                    // std::cout << "Get new global target and a new global path" << std::endl;
 
-                    // globalEndPosition = sf::Vector2f(rand() % 500, rand() % 500);
+                    // std::cout << "case 0" << std::endl;
+
                     globalEndPosition = getRandomLocation();
 
                     getNewGlobalPath(sprite);
@@ -190,22 +269,36 @@ class PathFollower : public SteeringBehavior
 
                 case 1:
                 {
-                    sf::Vector2f localPathStart = globalNextTarget; // set the local path start to the door of the room we are about to enter
-                    localNextTarget = localPathStart;
+                    
 
-                    GraphNode* nextGlobalNode = globalPath.front();
-                    globalPath.pop_front();
+                    if (!local_pathfinding_success){
+                        // std::cout << "case 1b" << std::endl;
+                        
+                        globalPath.emplace_front(globalNextTarget);
 
-                    globalNextTarget = sf::Vector2f(nextGlobalNode->x, nextGlobalNode->y);
+                        sf::Vector2f midwayPoint = localNextTarget + (globalNextTarget - localNextTarget)/2.0f;
+                        currentRoom = getRoomFromCoordinates(rooms,midwayPoint.x, midwayPoint.y);
 
-                    sf::Vector2f midwayPoint = localPathStart + (globalNextTarget - localPathStart) / 2.0f;
-                    currentRoom = getRoomFromCoordinates(rooms, midwayPoint.x, midwayPoint.y);
+                        sf::Vector2f middleOfRoom = currentRoom.getCenter();
 
-                    getNewLocalPath(currentRoom, localPathStart, globalNextTarget);
+                        globalNextTarget = middleOfRoom;
 
-                    // print each obstacle in the room as well as the radius
-                    for (auto obstacle : currentRoom.obstacles){
-                        std::cout << "(" << obstacle.first.x << ", " << obstacle.first.y << ") " << obstacle.second << std::endl;
+                        getNewLocalPath(currentRoom, localNextTarget, globalNextTarget);
+
+                    }else{          
+                        // std::cout << "case 1a" << std::endl;              
+                        localNextTarget = globalNextTarget; // have the local target be the room's door
+
+                        sf::Vector2f localPathStart = globalNextTarget; // for navigation, the start position is the room's door
+
+                        globalNextTarget = globalPath.front();
+                        globalPath.pop_front();
+
+                        sf::Vector2f midwayPoint = localPathStart + (globalNextTarget - localPathStart) / 2.0f;
+                        currentRoom = getRoomFromCoordinates(rooms, midwayPoint.x, midwayPoint.y);
+
+                        getNewLocalPath(currentRoom, localPathStart, globalNextTarget);
+
                     }
 
                     break;
@@ -213,18 +306,19 @@ class PathFollower : public SteeringBehavior
                     
                 case 2:
                 {
-                    // std::cout << "pop local path + get next local node" << std::endl;
+                    // std::cout << "case 2" << std::endl;
 
-                    localPath.pop_front();
                     localNextTarget = localPath.front();
+                    localPath.pop_front();
 
+                
                     break;
                 }
                     
                 case 3:
                 {
-                    // std::cout << "get new local path" << std::endl;
 
+                    // std::cout << "case 3" << std::endl;
                     sf::Vector2f localPathStart = sprite.getPosition();
 
                     getNewLocalPath(currentRoom, localPathStart, globalNextTarget);
@@ -234,52 +328,21 @@ class PathFollower : public SteeringBehavior
                     
                 case 4:
                 {
-                    sf::Vector2f spritePos = sprite.getPosition();
-                    sf::Vector2f localOffset = localNextTarget - spritePos;
+                    // std::cout << "case 4" << std::endl;
                     
-                    if (magnitude(localOffset) >  0.0f){
-                        sprite.linearVelocity = unitVector(localOffset)*0.05f;
-                    }else {
-                        sprite.linearVelocity = sf::Vector2f(0,0);
-                    }
-
+                    followLocalPath(sprite, elapsedTime);
 
                     break;
                 }
                     
                 default:
                 {
-                //    std::cout << "default: follow path" << std::endl;
-
-                    sf::Vector2f spritePos = sprite.getPosition();
-                    sf::Vector2f localOffset = localNextTarget - spritePos;
-                    
-                    if (magnitude(localOffset) >  0.0f){
-                        sprite.linearVelocity = unitVector(localOffset)*0.1f;
-                    }else {
-                        sprite.linearVelocity = sf::Vector2f(0,0);
-                    }
-
+                    followLocalPath(sprite, elapsedTime);
 
                     break; 
                 }
                     
             }            
-            
-            // std::cout << "Next local target: " << localNextTarget.x << " " << localNextTarget.y << std::endl;
-            // for (auto it = localPath.begin(); it != localPath.end(); ++it){
-            //     std::cout << "local path: " << it->x << " " << it->y << std::endl;
-            // }
-
-            // std::cout << "Next global target: " << globalNextTarget.x << " " << globalNextTarget.y << std::endl;
-            
-            // // iterate through the global path list and print
-            // for (auto it = globalPath.begin(); it != globalPath.end(); ++it){
-            //     std::cout << "global path: " << (*it)->x << " " << (*it)->y << std::endl;
-            // }
-
-
-            decision = -1;
 
             sprite.snapAngleToVelocity();
 
@@ -332,12 +395,11 @@ class PathFollower : public SteeringBehavior
             if (event.type == sf::Event::MouseButtonPressed)
             {
 
-                // globalEndPosition = sf::Vector2f(sf::Mouse::getPosition(*window));
+                globalEndPosition = sf::Vector2f(sf::Mouse::getPosition(*window));
                 
-                // needToUpdateGraph = true;
+                needToUpdateGraph = true;
 
-                std::cout << "Mouse click: " << sf::Mouse::getPosition(*window).x << " " << sf::Mouse::getPosition(*window).y << std::endl;
-
+            
             }
         }
 
