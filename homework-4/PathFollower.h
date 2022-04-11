@@ -56,6 +56,12 @@ class PathFollower : public SteeringBehavior
 
         u_short max_local_target_update_number = 15;
         u_short local_target_update_number = 0;
+
+        bool is_paused = false;
+
+        u_int16_t max_pause_time = 25;
+        u_int16_t pause_time = 0;
+
         sf::Vector2f previousLocalTarget;
 
 
@@ -72,11 +78,13 @@ class PathFollower : public SteeringBehavior
 
         float doorInnerRadius = 10;
         float doorOuterRadius = 100;
+        sf::Sprite * cheese;
         
-        PathFollower(sf::RenderWindow& window, std::vector<GraphNode*> graph, std::vector<room> rooms){
+        PathFollower(sf::RenderWindow& window, std::vector<GraphNode*> graph, std::vector<room> rooms, sf::Sprite & cheese){
             this->window = &window;
             this->graph = graph;
             this->rooms = rooms;
+            this->cheese = &cheese;
 
             globalStart = new GraphNode(-1, 0, 0);
             globalGoal = new GraphNode(-2, 0, 0);
@@ -114,8 +122,11 @@ class PathFollower : public SteeringBehavior
             bool no_collision = false;
 
             do {
-                x = randomRoom.x1 + (rand() % (randomRoom.x2 - randomRoom.x1));
-                y = randomRoom.y1 + (rand() % (randomRoom.y2 - randomRoom.y1));
+
+                // get a random location in the room using x1, x2, y1, y2 with a padding of 15 (so it's not against a wall)
+                x = randomRoom.x1 + (rand() % (randomRoom.x2 - randomRoom.x1 - 15)) + 15;
+                y = randomRoom.y1 + (rand() % (randomRoom.y2 - randomRoom.y1 - 15)) + 15;
+
             
                 no_collision = true;
 
@@ -147,6 +158,9 @@ class PathFollower : public SteeringBehavior
             
             if (globalPath.size() > 0){
                 globalNextTarget = globalPath.front();
+                cheese->setPosition(globalPath.back());
+                // make cheese no longer transparent
+                cheese->setColor(sf::Color(255, 255, 255, 255));
 
             }
             else{
@@ -154,6 +168,8 @@ class PathFollower : public SteeringBehavior
             }
 
             localPath.clear();
+            is_paused = true;
+        
 
         }
 
@@ -251,6 +267,7 @@ class PathFollower : public SteeringBehavior
             locals-> localPath = localPath;
             locals-> current_room = currentRoom;
             locals-> enemy_position = enemyPosition;
+            locals-> is_paused = is_paused;
 
             decision = tree->evaluate();
 
@@ -279,6 +296,10 @@ class PathFollower : public SteeringBehavior
                         sf::Vector2f midwayPoint = localNextTarget + (globalNextTarget - localNextTarget)/2.0f;
                         currentRoom = getRoomFromCoordinates(rooms,midwayPoint.x, midwayPoint.y);
 
+                        // if (currentRoom.roomID == -1){
+                        //     std::cout << " failed to find room in case 1b for coordinates: " << midwayPoint.x << "," << midwayPoint.y << std::endl;
+                        // }
+
                         sf::Vector2f middleOfRoom = currentRoom.getCenter();
 
                         globalNextTarget = middleOfRoom;
@@ -296,6 +317,10 @@ class PathFollower : public SteeringBehavior
 
                         sf::Vector2f midwayPoint = localPathStart + (globalNextTarget - localPathStart) / 2.0f;
                         currentRoom = getRoomFromCoordinates(rooms, midwayPoint.x, midwayPoint.y);
+
+                        // if (currentRoom.roomID == -1){
+                        //     std::cout << " failed to find room in case 1a for coordinates: " << midwayPoint.x << "," << midwayPoint.y << std::endl;
+                        // }
 
                         getNewLocalPath(currentRoom, localPathStart, globalNextTarget);
 
@@ -334,6 +359,21 @@ class PathFollower : public SteeringBehavior
 
                     break;
                 }
+
+                case 5:
+                {
+                    // std::cout << "case 5" << ": pos "<< sprite.getPosition().x << "," << sprite.getPosition().y << std::endl;
+                    
+                    if(pause_time > max_pause_time){
+                        pause_time = 0;
+                        is_paused = false;
+                    }else{
+                        pause_time += 1;
+                        sprite.linearVelocity = sprite.linearVelocity * 0.9f;
+                    }
+
+                    break;
+                }
                     
                 default:
                 {
@@ -369,7 +409,16 @@ class PathFollower : public SteeringBehavior
 
             // if globalGoal node and globalStart node are in the same room, create 2 edges between them
             room startRoom = getRoomFromCoordinates(rooms,globalStart->x, globalStart->y );
+
+            // if (startRoom.roomID == -1){
+                // std::cout << " failed to find room in updateGraph a for coords " << globalStart->x << "," << globalStart->y << std::endl;
+            // }
+
             room goalRoom = getRoomFromCoordinates(rooms,globalGoal->x, globalGoal->y );
+
+            // if (goalRoom.roomID == -1){
+            //     std::cout << " failed to find room in updateGraph b for coords " << globalGoal->x << "," << globalGoal->y << std::endl;
+            // }
 
             graph = addNodeToGraph(graph, rooms, globalStart);
             graph = addNodeToGraph(graph, rooms, globalGoal);
@@ -398,6 +447,7 @@ class PathFollower : public SteeringBehavior
                 globalEndPosition = sf::Vector2f(sf::Mouse::getPosition(*window));
                 
                 needToUpdateGraph = true;
+                localPath.clear();
 
             
             }

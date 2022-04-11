@@ -58,7 +58,10 @@ room getRoomFromCoordinates(std::vector<room> rooms, int x, int y){
 
     }
     std::cout << "ERROR: Could not find room from coordinates" << std::endl;
-    return rooms[0];
+    room errorRoom;
+    errorRoom.roomID = -1;
+
+    return errorRoom;
 }
 
 bool compareByRoomID(room a, room b){

@@ -22,7 +22,7 @@ public:
         angularVelocity = 0.0f;
         angularAcceleration = 0.0f;
 
-        setOrigin(getLocalBounds().width / 2, getLocalBounds().height / 2);
+        setOrigin((getLocalBounds().width +12), (getLocalBounds().height+ 3));
     }
 
     // Destructor

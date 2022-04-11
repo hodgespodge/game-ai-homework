@@ -25,6 +25,24 @@ DTNode * createTree(ExposedVariables * variables) {
         -1
     );
 
+    DTNode *is_paused = new DTNode(
+        [](ExposedVariables & variables) -> bool {
+            // std::cout << "in the is_paused" << std::endl;
+            return variables.is_paused;
+        },
+        *variables,
+        5
+    );
+
+    DTNode *is_not_paused = new DTNode(
+        [](ExposedVariables & variables) -> bool {
+            // std::cout << "in the is_not_paused" << std::endl;
+            return !variables.is_paused;
+        },
+        *variables,
+        -1
+    );
+
     DTNode *within_range = new DTNode(
         [](ExposedVariables & variables) -> bool{
             // std::cout << "in the within_range" << std::endl;
@@ -121,17 +139,20 @@ DTNode * createTree(ExposedVariables * variables) {
         4
     );
 
+    root->AddChild(is_paused);
 
-    root->AddChild(within_range);
-        within_range->AddChild(if_local_path_empty); 
-            if_local_path_empty->AddChild(if_global_path_empty); // leaf 0
-            if_local_path_empty->AddChild(if_not_global_path_empty); // leaf 1
+    root->AddChild(is_not_paused);
 
-        within_range->AddChild(if_not_local_path_empty); // leaf 2
+        is_not_paused->AddChild(within_range);
+            within_range->AddChild(if_local_path_empty); 
+                if_local_path_empty->AddChild(if_global_path_empty); // leaf 0
+                if_local_path_empty->AddChild(if_not_global_path_empty); // leaf 1
 
-    root->AddChild(not_within_range);
-        not_within_range->AddChild(if_local_path_not_set_OR_enemy_in_room); // leaf 3
-        not_within_range->AddChild(if_local_path_set_AND_enemy_not_in_room); // leaf 4
+            within_range->AddChild(if_not_local_path_empty); // leaf 2
+
+        is_not_paused->AddChild(not_within_range);
+            not_within_range->AddChild(if_local_path_not_set_OR_enemy_in_room); // leaf 3
+            not_within_range->AddChild(if_local_path_set_AND_enemy_not_in_room); // leaf 4
 
     return root;
 

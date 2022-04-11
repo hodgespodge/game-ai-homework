@@ -66,13 +66,22 @@ int demonstrateMazeNavigation(bool new_map){
     std::vector<GraphNode*> graph = graph_rooms.graph;
     std::vector<room> rooms = graph_rooms.rooms;
 
-    // print graph size
-    std::cout << "Graph size: " << graph.size() << std::endl;
+    sf::Sprite * cheese = new sf::Sprite();
+    sf::Texture cheeseTexture;
+    if (!cheeseTexture.loadFromFile("images/cheese.png"))
+    {
+        std::cout << "Error: cheese.png not found" << std::endl;
+        return -1;
+    }
+    cheese->setTexture(cheeseTexture);
+
+    // make the cheese transparent initially
+    cheese->setColor(sf::Color(255, 255, 255, 0));
 
     // initialize the map drawer
     MapDrawer mapDrawer(indoorMap, graph, rooms , scale);
 
-    SteeringBehavior* steeringBehavior = new PathFollower(window, graph, rooms);
+    SteeringBehavior* steeringBehavior = new PathFollower(window, graph, rooms, *cheese);
 
     int numBreadCrumbs = 30;
     bool drawBreadcrumbs = true;
@@ -83,7 +92,7 @@ int demonstrateMazeNavigation(bool new_map){
 
 
     sf::Texture texture;
-    if(!texture.loadFromFile("images/boid-sm.png")){
+    if(!texture.loadFromFile("images/mouse.png")){
         return EXIT_FAILURE;
     }
 
@@ -153,6 +162,7 @@ int demonstrateMazeNavigation(bool new_map){
 
         else{
             window.draw(*sprite);
+            window.draw(*cheese);
         }
 
         window.display();

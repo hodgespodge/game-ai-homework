@@ -17,6 +17,7 @@ public:
     std::list<sf::Vector2f> localPath;
     room current_room;
     sf::Vector2f enemy_position;
+    bool is_paused;
 
     // Constructor
     ExposedVariables()
@@ -27,6 +28,7 @@ public:
         this->localPath = std::list<sf::Vector2f>();
         this->current_room = room();
         this->enemy_position = sf::Vector2f(0,0);
+        this->is_paused = false;
         
     }
 
