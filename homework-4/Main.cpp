@@ -15,6 +15,7 @@
 #include "EuclideanHeuristic.h"
 
 #include "from-homework-2/SteeringBehavior.h"
+#include "CatAI.h"
 #include "PathFollower.h"
 
 #include "decisionTree/LocalNavTree.h"
@@ -78,10 +79,23 @@ int demonstrateMazeNavigation(bool new_map){
     // make the cheese transparent initially
     cheese->setColor(sf::Color(255, 255, 255, 0));
 
+
+    Boid* enemy = new Boid(5, 1.0);
+    sf::Texture catTexture;
+    if (!catTexture.loadFromFile("images/cat.png"))
+    {
+        std::cout << "Error: cat.png not found" << std::endl;
+        return -1;
+    }
+    enemy->setTexture(catTexture);
+    enemy->setPosition(sf::Vector2f(25, 25));
+
     // initialize the map drawer
     MapDrawer mapDrawer(indoorMap, graph, rooms , scale);
 
-    SteeringBehavior* steeringBehavior = new PathFollower(window, graph, rooms, *cheese);
+    SteeringBehavior* steeringBehavior = new PathFollower(window, graph, rooms, *cheese, *enemy);
+
+    
 
     int numBreadCrumbs = 30;
     bool drawBreadcrumbs = true;
@@ -90,6 +104,7 @@ int demonstrateMazeNavigation(bool new_map){
 
     Boid* sprite = new Boid(numBreadCrumbs, 1.0);
 
+    CatAI* catAI = new CatAI(window, graph, rooms, * sprite);
 
     sf::Texture texture;
     if(!texture.loadFromFile("images/mouse.png")){
@@ -135,7 +150,8 @@ int demonstrateMazeNavigation(bool new_map){
         {
            
             steeringBehavior->updateSprite(*sprite, clock.getElapsedTime().asMilliseconds());
-            
+            catAI->updateSprite(*enemy, clock.getElapsedTime().asMilliseconds());
+
             clock.restart();
         }
 
@@ -163,6 +179,7 @@ int demonstrateMazeNavigation(bool new_map){
         else{
             window.draw(*sprite);
             window.draw(*cheese);
+            window.draw(*enemy);
         }
 
         window.display();

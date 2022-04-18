@@ -32,6 +32,9 @@ class PathFollower : public SteeringBehavior
 
         sf::Vector2f enemyPosition;
 
+        Boid * enemy;
+
+
         std::vector<GraphNode*> graph;
         std::vector<room> rooms;
 
@@ -80,16 +83,17 @@ class PathFollower : public SteeringBehavior
         float doorOuterRadius = 100;
         sf::Sprite * cheese;
         
-        PathFollower(sf::RenderWindow& window, std::vector<GraphNode*> graph, std::vector<room> rooms, sf::Sprite & cheese){
+        PathFollower(sf::RenderWindow& window, std::vector<GraphNode*> graph, std::vector<room> rooms, sf::Sprite & cheese, Boid & enemy){
             this->window = &window;
             this->graph = graph;
             this->rooms = rooms;
             this->cheese = &cheese;
+            this->enemy = &enemy;
 
             globalStart = new GraphNode(-1, 0, 0);
             globalGoal = new GraphNode(-2, 0, 0);
             heuristic = new EuclideanHeuristic(globalGoal);
-            // nextGlobalNode = NULL;
+            
 
             locals = new ExposedVariables();
 
@@ -192,7 +196,10 @@ class PathFollower : public SteeringBehavior
 
             }
 
-            std::vector<sf::Vector2f> localPathVector = getPathThroughRoom(startPos, endPos, localRoom, localRoom.obstacles);
+            sf::Vector2f enemyPosition = enemy->getPosition();
+
+
+            std::vector<sf::Vector2f> localPathVector = getPathThroughRoom(startPos, endPos, localRoom, localRoom.obstacles, {enemyPosition.x, enemyPosition.y});
 
             localPath.splice(localPath.end(), std::list<sf::Vector2f>(localPathVector.rbegin(), localPathVector.rend()));
 
@@ -268,7 +275,7 @@ class PathFollower : public SteeringBehavior
             locals-> globalPath = globalPath;
             locals-> localPath = localPath;
             locals-> current_room = currentRoom;
-            locals-> enemy_position = enemyPosition;
+            locals-> enemy_position = enemy->getPosition();
             locals-> is_paused = is_paused;
 
             decision = tree->evaluate();
@@ -290,25 +297,25 @@ class PathFollower : public SteeringBehavior
                 {
                     
 
-                    if (!local_pathfinding_success){
-                        // std::cout << "case 1b" << std::endl;
+                    // if (!local_pathfinding_success){
+                    //     // std::cout << "case 1b" << std::endl;
                         
-                        globalPath.emplace_front(globalNextTarget);
+                    //     globalPath.emplace_front(globalNextTarget);
 
-                        sf::Vector2f midwayPoint = localNextTarget + (globalNextTarget - localNextTarget)/2.0f;
-                        currentRoom = getRoomFromCoordinates(rooms,midwayPoint.x, midwayPoint.y);
+                    //     sf::Vector2f midwayPoint = localNextTarget + (globalNextTarget - localNextTarget)/2.0f;
+                    //     currentRoom = getRoomFromCoordinates(rooms,midwayPoint.x, midwayPoint.y);
 
-                        // if (currentRoom.roomID == -1){
-                        //     std::cout << " failed to find room in case 1b for coordinates: " << midwayPoint.x << "," << midwayPoint.y << std::endl;
-                        // }
+                    //     // if (currentRoom.roomID == -1){
+                    //     //     std::cout << " failed to find room in case 1b for coordinates: " << midwayPoint.x << "," << midwayPoint.y << std::endl;
+                    //     // }
 
-                        sf::Vector2f middleOfRoom = currentRoom.getCenter();
+                    //     sf::Vector2f middleOfRoom = currentRoom.getCenter();
 
-                        globalNextTarget = middleOfRoom;
+                    //     globalNextTarget = middleOfRoom;
 
-                        getNewLocalPath(currentRoom, localNextTarget, globalNextTarget);
+                    //     getNewLocalPath(currentRoom, localNextTarget, globalNextTarget);
 
-                    }else{          
+                    // }else{          
                         // std::cout << "case 1a" << std::endl;              
                         localNextTarget = globalNextTarget; // have the local target be the room's door
 
@@ -326,7 +333,7 @@ class PathFollower : public SteeringBehavior
 
                         getNewLocalPath(currentRoom, localPathStart, globalNextTarget);
 
-                    }
+                    // }
 
                     break;
                 }
@@ -348,7 +355,20 @@ class PathFollower : public SteeringBehavior
                     // std::cout << "case 3" << std::endl;
                     sf::Vector2f localPathStart = sprite.getPosition();
 
+                    localPath.clear();
+                    
+
                     getNewLocalPath(currentRoom, localPathStart, globalNextTarget);
+
+
+                    if (localPath.size() > 0){
+                        localPath.pop_front();
+                        localNextTarget = localPath.front();
+
+                        followLocalPath(sprite, elapsedTime);
+                    }
+
+                    
 
                     break;
                 }

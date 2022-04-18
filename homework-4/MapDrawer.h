@@ -165,7 +165,7 @@ public:
             for(std::pair<sf::Vector2f, float> obstacle : room.obstacles){
                 sf::CircleShape circle(obstacle.second);
                 circle.setPosition(obstacle.first.x - scale/2, obstacle.first.y - scale/2);
-                circle.setFillColor(sf::Color::Red);
+                circle.setFillColor(sf::Color::Black);
                 obstacles.push_back(circle);
             }
 

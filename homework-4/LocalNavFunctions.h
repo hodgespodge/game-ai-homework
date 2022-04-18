@@ -7,15 +7,16 @@
 #include "from-homework-2/HelperFunctions.h"
 // #include <unordered_map>
 
+float enemy_radius = 10;
 
 typedef std::pair<int, int> coordinate;
 
 // Obstacles is a list of pairs of sf::Vector2f and float (radius)
 typedef std::list<std::pair<sf::Vector2f, float>> Obstacles;
 
-std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f end, room& room, Obstacles obstacles, float jump_distance);
+std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f end, room& room, Obstacles obstacles, coordinate enemyPosition, float jump_distance);
 
-std::vector<sf::Vector2f> getPathThroughRoom(sf::Vector2f start, sf::Vector2f end, room& room, Obstacles obstacles){
+std::vector<sf::Vector2f> getPathThroughRoom(sf::Vector2f start, sf::Vector2f end, room& room, Obstacles obstacles, coordinate enemyPosition){
     // std::cout << "getPathThroughRoom" << std::endl;
 
     // float jump_distance = 10;
@@ -33,7 +34,7 @@ std::vector<sf::Vector2f> getPathThroughRoom(sf::Vector2f start, sf::Vector2f en
     // Perform A* search to find the path from start to end in the room with obstacles in it (obstacles) 
     // The path should be a vector of sf::Vector2f
 
-    std::vector<sf::Vector2f> localPath = coordinateBasedAStar(start, end, room, obstacles, jump_distance);
+    std::vector<sf::Vector2f> localPath = coordinateBasedAStar(start, end, room, obstacles, enemyPosition, jump_distance);
 
     return localPath;
  
@@ -61,7 +62,7 @@ float heuristic_cost_estimate(coordinate start, coordinate end){
 
 
 
-std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f end, room& room, Obstacles obstacles, float jump_distance){
+std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f end, room& room, Obstacles obstacles, coordinate enemyPosition ,float jump_distance){
 
     coordinate start_coordinate = {start.x, start.y};
     coordinate end_coordinate = {end.x, end.y};
@@ -70,9 +71,6 @@ std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f 
     start_direction = unitVector(start_direction);
 
     // std::cout << "approach direction: " <<  start_direction.x << ", " << start_direction.y << std::endl;
-
-    
-
 
     // float obstacle_padding = 10;
     float obstacle_padding = jump_distance;
@@ -162,6 +160,12 @@ std::vector<sf::Vector2f> coordinateBasedAStar(sf::Vector2f start, sf::Vector2f 
 
             if(!room.contains_with_padding(it->first, it->second, obstacle_padding)){
                 // std::cout << "out of bounds... passing" << std::endl;
+                continue; // skip this neighbor
+            }
+
+            // check if neighbor collides with the enemyPosition
+            if (distance(it->first, it->second, enemyPosition.first, enemyPosition.second) < enemy_radius){
+                std::cout << "collides with enemy... passing" << std::endl;
                 continue; // skip this neighbor
             }
 

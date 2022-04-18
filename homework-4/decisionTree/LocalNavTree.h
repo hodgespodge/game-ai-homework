@@ -121,7 +121,7 @@ DTNode * createTree(ExposedVariables * variables) {
                 return true;
             }
             if (variables.current_room.contains(variables.enemy_position.x, variables.enemy_position.y)) {
-                std::cout << "enemy in room" << std::endl;
+                // std::cout << "enemy in room" << std::endl;
                 return true;
             }
             return false;
