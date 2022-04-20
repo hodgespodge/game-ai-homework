@@ -84,18 +84,27 @@ class room{
                     node2->addNeighbor(node, diff);
                 }
             }
+
+            for(GraphNode* node2 : doors){
+                float diff = node->diff(node2);
+                if(diff < jump_distance + 5){
+
+                    node->addNeighbor(node2, diff);
+                    node2->addNeighbor(node, diff);
+                }
+            }
             
             // interiorGraph.push_back(node);
         }
 
-        void deleteNodeFromInteriorGraph(GraphNode* node){
+        // void deleteNodeFromInteriorGraph(GraphNode* node){
                 
-            for (auto neighbor : node->neighbors){
-                neighbor.second->removeNeighbor(node);
-            }
+        //     for (auto neighbor : node->neighbors){
+        //         neighbor.second->removeNeighbor(node);
+        //     }
 
-            interiorGraph.erase(std::remove(interiorGraph.begin(), interiorGraph.end(), node), interiorGraph.end());
-        }
+        //     interiorGraph.erase(std::remove(interiorGraph.begin(), interiorGraph.end(), node), interiorGraph.end());
+        // }
 
         GraphNode* removeNodeFromGraph(GraphNode* node, std::vector<GraphNode*>& graph){
             for (int i = 0; i < graph.size(); i++){

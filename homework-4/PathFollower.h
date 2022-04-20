@@ -194,7 +194,13 @@ class PathFollower : public SteeringBehavior
 
             sf::Vector2f movementDirection;
             
-            movementDirection = localTarget - spritePos;
+            // movementDirection = localTarget - spritePos;
+
+            if(path.size() == 0){ 
+                movementDirection = localTarget - spritePos;
+            }else{
+                movementDirection = (localTarget*0.8f + path.front()*0.2f)- spritePos;
+            }
 
             if (magnitude(movementDirection) >  0.0f){
 
