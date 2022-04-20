@@ -44,7 +44,7 @@ class CatAI
             current_room = rooms[0];
             is_initialized = false;
             wander_speed = 0.04;
-            chase_speed = 0.06;
+            chase_speed = 0.062;
             function_timer = 0;
 
             blackboard = new std::unordered_map<int, ReturnType *>();
@@ -94,6 +94,10 @@ class CatAI
                 direction = unitVector(direction);
                 direction *= wander_speed;
                 sprite.linearVelocity = direction;
+                
+                // sprite.angularVelocity = 0.0f;
+                // sprite.setRotation(0);
+
             }
         }
 
@@ -104,7 +108,7 @@ class CatAI
             sf::Vector2f diff = mousePosition - currentPosition;
 
 
-            if (magnitude(diff) < 50){
+            if (magnitude(diff) < 20){
                 // if mouse is close enough, success
                 function_timer = 0;
                 *blackboard->at(2) = ReturnType::SUCCESS;
@@ -121,6 +125,10 @@ class CatAI
                 direction = unitVector(direction);
                 direction *= chase_speed;
                 sprite.linearVelocity = direction;
+
+                // sprite.angularVelocity = 0.0f;
+                // sprite.setRotation(0);
+
             }
         }
 
@@ -129,15 +137,19 @@ class CatAI
             if(function_timer > timeout){
                 function_timer = 0;
                 *blackboard->at(3) = ReturnType::SUCCESS;
+
+                sprite.angularVelocity = 0.0f;
+                sprite.setRotation(0);
                 return;
             }
 
             else{
                 // spin around in a circle
-                sf::Vector2f direction = sf::Vector2f(1,0);
-                direction = unitVector(direction);
-                direction *= wander_speed;
-                sprite.linearVelocity = direction;
+               
+                sprite.linearVelocity = sf::Vector2f(0,0);
+
+                // rotate sprite
+                sprite.angularVelocity += 0.015f;
             }
         }
 
@@ -187,7 +199,12 @@ class CatAI
             }
         }
 
-        void resetTree(){
+        void resetTree(Boid& sprite){
+
+            sprite.angularVelocity = 0.0f;
+            sprite.setRotation(0);
+            sprite.linearVelocity = sf::Vector2f(0,0);
+
             for (auto value : *blackboard)
             {
                 *value.second = IDLE;
@@ -208,7 +225,7 @@ class CatAI
                         case 1:
                             // std::cout << "findMouse" << std::endl;
 
-                            findMouse(sprite, 7500);
+                            findMouse(sprite, 8500);
 
                             break;
                         case 2:
@@ -216,7 +233,7 @@ class CatAI
 
                             // std::cout << "chase mouse" << std::endl;
 
-                            chaseMouse(sprite, 1000);
+                            chaseMouse(sprite, 2000);
 
                             break;
 
@@ -240,7 +257,7 @@ class CatAI
                             // start from beginning
 
                             // std::cout << "start from beginning" << std::endl;
-                            resetTree();
+                            resetTree(sprite);
                             
                         }
 
@@ -251,11 +268,12 @@ class CatAI
                     break;
                 default:
                     // std::cout << "start from beginning" << std::endl;
-                    resetTree();
+                    resetTree(sprite);
             }
 
             
             sprite.updatePosition(elapsedTime);
+            sprite.updateAngle(elapsedTime);
 
         }
 

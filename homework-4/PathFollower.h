@@ -57,7 +57,7 @@ class PathFollower : public SteeringBehavior
 
         bool is_paused = false;
 
-        u_int16_t max_pause_time = 25;
+        u_int16_t max_pause_time = 500;
         u_int16_t pause_time = 0;
 
         sf::Vector2f previousLocalTarget;
@@ -208,6 +208,9 @@ class PathFollower : public SteeringBehavior
             }else {
                 sprite.linearVelocity = sf::Vector2f(0,0);
             }
+
+            sprite.updatePosition(elapsedTime);
+            sprite.snapAngleToVelocity();
         }
 
         void updateSprite(Boid& sprite, float elapsedTime){
@@ -235,7 +238,8 @@ class PathFollower : public SteeringBehavior
                     path.clear();
 
                     // teleport the sprite to a random location
-                    sprite.setPosition(getRandomLocation());
+
+                    is_paused = true;
 
                     localTarget = sprite.getPosition();
 
@@ -324,14 +328,20 @@ class PathFollower : public SteeringBehavior
 
                 case 5:
                 {
-                    // std::cout << "case 5" << ": pos "<< sprite.getPosition().x << "," << sprite.getPosition().y << std::endl;
+                    // caught by cat
                     
                     if(pause_time > max_pause_time){
                         pause_time = 0;
                         is_paused = false;
+                        sprite.angularVelocity = 0;
+                        sprite.setPosition(getRandomLocation());
                     }else{
-                        pause_time += 1;
-                        sprite.linearVelocity = sprite.linearVelocity * 0.9f;
+                        pause_time += elapsedTime;
+                        sprite.angularVelocity += 0.2f;
+                        sprite.linearVelocity = sprite.linearVelocity * 0.92f;
+
+                        sprite.updatePosition(elapsedTime);
+                        sprite.updateAngle(elapsedTime);
                     }
 
                     break;
@@ -384,9 +394,9 @@ class PathFollower : public SteeringBehavior
                     
             }            
 
-            sprite.snapAngleToVelocity();
+            // sprite.snapAngleToVelocity();
 
-            sprite.updatePosition(elapsedTime);
+            // sprite.updatePosition(elapsedTime);
 
             update_number++;
 
