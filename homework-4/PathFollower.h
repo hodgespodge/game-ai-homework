@@ -193,12 +193,6 @@ class PathFollower : public SteeringBehavior
             sf::Vector2f spritePos = sprite.getPosition();
 
             sf::Vector2f movementDirection;
-
-            // if(path.size() == 0){
-            //     movementDirection = localTarget - spritePos;
-            // }else{
-            //     movementDirection = (localTarget*0.8f + path.front()*0.2f)- spritePos;
-            // }
             
             movementDirection = localTarget - spritePos;
 
@@ -263,7 +257,7 @@ class PathFollower : public SteeringBehavior
                 case 0:
                 {
 
-                    std::cout << "-add random target to global queue" << std::endl;
+                    // std::cout << "-add random target to global queue" << std::endl;
 
                     this->targetQueue.push_back(getRandomLocation());
 
@@ -275,7 +269,7 @@ class PathFollower : public SteeringBehavior
                     
                     // pop off the next target from the queue
 
-                    std::cout << "-pop off next target from global queue" << std::endl;
+                    // std::cout << "-pop off next target from global queue" << std::endl;
 
                     this->globalTarget = targetQueue.front();
                     targetQueue.pop_front();
@@ -290,14 +284,14 @@ class PathFollower : public SteeringBehavior
                     
                 case 2:
                 {
-                    std::cout << "-get the next local target" << std::endl;
+                    // std::cout << "-get the next local target" << std::endl;
 
                     do {
 
                         this->localTarget = path.front();
                         path.pop_front();
 
-                        std::cout << "Local Target: " << localTarget.x << ", " << localTarget.y << std::endl;
+                        // std::cout << "Local Target: " << localTarget.x << ", " << localTarget.y << std::endl;
 
                     } while( path.size() > 0 && sqrt(pow(sprite.getPosition().x - localTarget.x, 2) + pow(sprite.getPosition().y - localTarget.y, 2)) < target_range);
 
@@ -311,7 +305,7 @@ class PathFollower : public SteeringBehavior
                 case 3:
                 {
 
-                    std::cout << "-path not set" << std::endl;
+                    // std::cout << "-path not set" << std::endl;
                     // path.clear();
                     
                     // getNewLocalPath(*currentRoom, localPathStart, globalNextTarget);
@@ -324,7 +318,7 @@ class PathFollower : public SteeringBehavior
                     
                 case 4:
                 {
-                    std::cout << "-placeholder" << std::endl;
+                    // std::cout << "-placeholder" << std::endl;
                     
                     break;
                 }
@@ -346,17 +340,19 @@ class PathFollower : public SteeringBehavior
 
                 case 6:
                 {
-                    std::cout << "-enemy nearby" << std::endl;
+                    // std::cout << "-enemy nearby" << std::endl;
  
                     // loop through the next 10 nodes in the path and check if any of them are in the enemy
 
                     maxSpeed = 0.07;
                     maxSpeedDelta = 0.03;
 
+                    // target_range = 20;
+
                     // path.clear();
                     getNewPath(sprite);
 
-                    while( path.size() > 0 && sqrt(pow(sprite.getPosition().x - localTarget.x, 2) + pow(sprite.getPosition().y - localTarget.y, 2)) < target_range){
+                    while( path.size() > 0 && sqrt(pow(sprite.getPosition().x - localTarget.x, 2) + pow(sprite.getPosition().y - localTarget.y, 2)) < target_range * 2){
                         this->localTarget = path.front();
                         path.pop_front();
                     }
@@ -368,10 +364,12 @@ class PathFollower : public SteeringBehavior
                     
                 case 7:
                 {
-                    std::cout << "-follow path normally" << std::endl;
+                    // std::cout << "-follow path normally" << std::endl;
 
                     maxSpeed = 0.05;
                     maxSpeedDelta = 0.02;
+
+                    // target_range = 10;
 
                     followLocalPath(sprite, elapsedTime);
 

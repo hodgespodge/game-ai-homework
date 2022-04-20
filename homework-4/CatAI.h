@@ -31,7 +31,7 @@ class CatAI
 
             current_room = rooms[0];
             is_initialized = false;
-            max_speed = 0.025;
+            max_speed = 0.04;
 
         }
 

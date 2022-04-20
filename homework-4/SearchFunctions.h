@@ -50,20 +50,6 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
         open.erase(open.begin());
         current->visited = true;
         
-        // if(enemy_in_map){
-
-        //     if(sqrt(pow(current->x - enemy_pos.x, 2) + pow(current->y - enemy_pos.y, 2)) < enemy_radius){ // skip this node if it is within the enemy's radius
-
-        //         if (current->id == goal->id){ // if the goal node is inside the enemy's radius, no path is possible
-        //             return std::vector<GraphNode*>();
-        //         }
-
-        //         std::cout << "skipping node with enemy" << std::endl;
-
-        //         continue;
-        //     }
-        // }
-
         // Check if we have reached the goal
         if(current->id == goal->id){
             return reconstructPath(current);
@@ -80,9 +66,12 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
 
                 if(enemy_in_map){
                     float enemy_dist = sqrt(pow(neighbor->x - enemy_pos.x, 2) + pow(neighbor->y - enemy_pos.y, 2));
-                    if(enemy_dist < enemy_radius){
-                        cost += 5*enemy_radius/enemy_dist;
+                    
+                    if (enemy_dist < enemy_radius){
+                        cost += 1000;
                     }
+
+                    cost += 2 * enemy_radius /(enemy_dist * enemy_dist * enemy_dist);
                 }
 
                 // If the cost is less than the neighbor's current cost
