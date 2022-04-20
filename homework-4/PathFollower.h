@@ -173,13 +173,6 @@ class PathFollower : public SteeringBehavior
                 // make cheese no longer transparent
                 cheese->setColor(sf::Color(255, 255, 255, 255));
 
-                // print path
-                // std::cout << "Path: ";
-                // for (auto node : path){
-                //     std::cout << "(" << node.x << ", " << node.y << ") ";
-                // }
-                // std::cout << std::endl;
-
             }
             else{
                 // std::cout << "No path found" << std::endl;
