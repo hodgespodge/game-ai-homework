@@ -85,7 +85,7 @@ class room{
                 }
             }
             
-            interiorGraph.push_back(node);
+            // interiorGraph.push_back(node);
         }
 
         void deleteNodeFromInteriorGraph(GraphNode* node){

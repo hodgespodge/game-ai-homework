@@ -45,15 +45,15 @@ class PathFollower : public SteeringBehavior
         ExposedVariables * locals;
         DTNode * tree;
 
-        u_short update_number = 0;
+        u_int64_t update_number = 0;
         bool is_initialized = false;
 
         int decision = 0;
 
         bool local_pathfinding_success = true;
 
-        u_short max_local_target_update_number = 15;
-        u_short local_target_update_number = 0;
+        // u_short max_local_target_update_number = 15;
+        // u_short local_target_update_number = 0;
 
         bool is_paused = false;
 
@@ -61,6 +61,8 @@ class PathFollower : public SteeringBehavior
         u_int16_t pause_time = 0;
 
         sf::Vector2f previousLocalTarget;
+
+        float target_range = 10;
 
 
     public:        
@@ -152,7 +154,6 @@ class PathFollower : public SteeringBehavior
 
         void getNewPath(Boid & sprite){
             
-
             updateGraph(sprite);
 
             std::vector<GraphNode*> pathVector = shortestPath(startNode, goalNode, graph, heuristic, enemy->getPosition(), 50);
@@ -171,8 +172,17 @@ class PathFollower : public SteeringBehavior
                 cheese->setPosition(path.back());
                 // make cheese no longer transparent
                 cheese->setColor(sf::Color(255, 255, 255, 255));
+
+                // print path
+                // std::cout << "Path: ";
+                // for (auto node : path){
+                //     std::cout << "(" << node.x << ", " << node.y << ") ";
+                // }
+                // std::cout << std::endl;
+
             }
             else{
+                // std::cout << "No path found" << std::endl;
                 localTarget = sprite.getPosition();
             }
 
@@ -184,12 +194,14 @@ class PathFollower : public SteeringBehavior
 
             sf::Vector2f movementDirection;
 
-            if(path.size() == 0){
-                movementDirection = localTarget - spritePos;
-            }else{
-                movementDirection = (localTarget*0.8f + path.front()*0.2f)- spritePos;
-            }
+            // if(path.size() == 0){
+            //     movementDirection = localTarget - spritePos;
+            // }else{
+            //     movementDirection = (localTarget*0.8f + path.front()*0.2f)- spritePos;
+            // }
             
+            movementDirection = localTarget - spritePos;
+
             if (magnitude(movementDirection) >  0.0f){
 
                 // increase the velocity of the sprite by max velocity change in the direction of the movement
@@ -217,9 +229,25 @@ class PathFollower : public SteeringBehavior
             //     updateGraph(sprite);
             // }
 
-            sf::Vector2f spritePos = sprite.getPosition();
+            room * currentRoom = getRoomFromCoordinates(rooms, localTarget.x, localTarget.y);
 
-            room * currentRoom = getRoomFromCoordinates(rooms,spritePos.x, spritePos.y);
+            sf::Vector2f spritePos = sprite.getPosition();
+            sf::Vector2f enemyPos = enemy->getPosition();
+            
+            // if current room contains the cat
+
+            if (currentRoom->contains(enemyPos.x, enemyPos.y)){
+        
+                if (sqrt(pow(spritePos.x - enemy->getPosition().x, 2) + pow(spritePos.y - enemy->getPosition().y, 2)) < 20){
+                    path.clear();
+
+                    // teleport the sprite to a random location
+                    sprite.setPosition(getRandomLocation());
+
+                    localTarget = sprite.getPosition();
+
+                }
+            }
 
             locals-> sprite = &sprite;
             locals-> local_target = localTarget;
@@ -229,7 +257,7 @@ class PathFollower : public SteeringBehavior
             locals-> enemy_position = enemy->getPosition();
             locals-> is_paused = is_paused;
 
-            decision = tree->evaluate();
+            decision = tree->evaluate(update_number);
 
             switch(decision){
                 case 0:
@@ -264,8 +292,14 @@ class PathFollower : public SteeringBehavior
                 {
                     std::cout << "-get the next local target" << std::endl;
 
-                    this->localTarget = path.front();
-                    path.pop_front();
+                    do {
+
+                        this->localTarget = path.front();
+                        path.pop_front();
+
+                        std::cout << "Local Target: " << localTarget.x << ", " << localTarget.y << std::endl;
+
+                    } while( path.size() > 0 && sqrt(pow(sprite.getPosition().x - localTarget.x, 2) + pow(sprite.getPosition().y - localTarget.y, 2)) < target_range);
 
                     // std::cout << "local target: " << localTarget.x << "," << localTarget.y << std::endl;
                 
@@ -277,8 +311,8 @@ class PathFollower : public SteeringBehavior
                 case 3:
                 {
 
-                    std::cout << "path not set" << std::endl;
-                    path.clear();
+                    std::cout << "-path not set" << std::endl;
+                    // path.clear();
                     
                     // getNewLocalPath(*currentRoom, localPathStart, globalNextTarget);
                     getNewPath(sprite);
@@ -312,18 +346,18 @@ class PathFollower : public SteeringBehavior
 
                 case 6:
                 {
-                    std::cout << "-enemy in room" << std::endl;
+                    std::cout << "-enemy nearby" << std::endl;
  
                     // loop through the next 10 nodes in the path and check if any of them are in the enemy
 
                     maxSpeed = 0.07;
                     maxSpeedDelta = 0.03;
 
-                    path.clear();
+                    // path.clear();
                     getNewPath(sprite);
 
-                    if (path.size() > 0){
-                        localTarget = path.front();
+                    while( path.size() > 0 && sqrt(pow(sprite.getPosition().x - localTarget.x, 2) + pow(sprite.getPosition().y - localTarget.y, 2)) < target_range){
+                        this->localTarget = path.front();
                         path.pop_front();
                     }
 
@@ -334,7 +368,7 @@ class PathFollower : public SteeringBehavior
                     
                 case 7:
                 {
-                    std::cout << "-enemy not in room" << std::endl;
+                    std::cout << "-follow path normally" << std::endl;
 
                     maxSpeed = 0.05;
                     maxSpeedDelta = 0.02;
@@ -366,8 +400,6 @@ class PathFollower : public SteeringBehavior
             graph = removeNodeFromGraph(graph,startNode);
             graph = removeNodeFromGraph(graph,goalNode);
 
-            // if goalNode node and startNode node are in the same room, create 2 edges between them
-
             graph = cleanGraph(graph);
 
             startNode->x = sprite.getPosition().x;
@@ -396,12 +428,12 @@ class PathFollower : public SteeringBehavior
                 if (!shiftPressed){
                     targetQueue.clear();
                     path.clear();
-                    std::cout << "cleared target queue and path" << std::endl;
+                    // std::cout << "cleared target queue and path" << std::endl;
                     needToUpdateGraph = true;
                     globalTarget = sf::Vector2f(sf::Mouse::getPosition(*window));
                 
                 }else{
-                    std::cout << "shift left click pressed" << std::endl;
+                    // std::cout << "shift left click pressed" << std::endl;
                     targetQueue.push_back(sf::Vector2f(sf::Mouse::getPosition(*window)));
                 }
       

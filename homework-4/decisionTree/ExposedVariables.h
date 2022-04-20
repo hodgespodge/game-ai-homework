@@ -18,6 +18,7 @@ public:
     room * current_room;
     sf::Vector2f enemy_position;
     bool is_paused;
+    u_int64_t clock;
 
     // Constructor
     ExposedVariables()
@@ -29,6 +30,7 @@ public:
         this->current_room = NULL;
         this->enemy_position = sf::Vector2f(0,0);
         this->is_paused = false;
+        this->clock = 0;
         
     }
 

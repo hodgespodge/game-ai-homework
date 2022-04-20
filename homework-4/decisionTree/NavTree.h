@@ -115,7 +115,7 @@ DTNode * createTree(ExposedVariables * variables) {
 
     DTNode *if_path_not_set = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_path_not_set_OR_enemy_in_room" << std::endl;
+            // std::cout << "in the if_path_not_set_OR_enemy_nearby" << std::endl;
             
             return variables.localPath.size() == 0;
             
@@ -126,25 +126,30 @@ DTNode * createTree(ExposedVariables * variables) {
   
     DTNode *if_path_set = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_path_set_AND_enemy_not_in_room" << std::endl;
+            // std::cout << "in the if_path_set_AND_enemy_not_nearby" << std::endl;
             return variables.localPath.size() != 0;
         },
         *variables,
         -1
     );
 
-    DTNode *if_enemy_in_room = new DTNode(
+    DTNode *if_enemy_nearby = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_enemy_in_room" << std::endl;
-            return variables.current_room->contains(variables.enemy_position.x, variables.enemy_position.y);
+            // std::cout << "in the if_enemy_nearby" << std::endl;
+
+            sf::Vector2f sprite_offset = variables.sprite->getPosition() - variables.enemy_position;
+
+            return (magnitude(sprite_offset) <= target_range* 10);
+
+            // return variables.current_room->contains(variables.enemy_position.x, variables.enemy_position.y);
         },
         *variables,
         6
     );
 
-    DTNode *if_enemy_not_in_room = new DTNode(
+    DTNode *if_enemy_not_nearby = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_enemy_not_in_room" << std::endl;
+            // std::cout << "in the if_enemy_not_nearby" << std::endl;
             return !variables.current_room->contains(variables.enemy_position.x, variables.enemy_position.y);
         },
         *variables,
@@ -165,8 +170,8 @@ DTNode * createTree(ExposedVariables * variables) {
         is_not_paused->AddChild(not_within_range);
             not_within_range->AddChild(if_path_not_set); // leaf 3
             not_within_range->AddChild(if_path_set); 
-                if_path_set->AddChild(if_enemy_in_room); // leaf 6
-                if_path_set->AddChild(if_enemy_not_in_room); // leaf 7
+                if_path_set->AddChild(if_enemy_nearby); // leaf 6
+                if_path_set->AddChild(if_enemy_not_nearby); // leaf 7
 
     return root;
 

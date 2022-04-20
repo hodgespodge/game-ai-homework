@@ -81,7 +81,7 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
                 if(enemy_in_map){
                     float enemy_dist = sqrt(pow(neighbor->x - enemy_pos.x, 2) + pow(neighbor->y - enemy_pos.y, 2));
                     if(enemy_dist < enemy_radius){
-                        cost += enemy_radius/enemy_dist;
+                        cost += 5*enemy_radius/enemy_dist;
                     }
                 }
 

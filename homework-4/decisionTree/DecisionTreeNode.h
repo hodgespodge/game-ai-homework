@@ -15,6 +15,7 @@ public:
 
     bool isLeaf;
     int leaf_id;
+    u_int64_t last_call = 0;
 
     // Constructor
     DTNode(bool_function eval_function, ExposedVariables & variables, int leaf_id){
@@ -35,7 +36,9 @@ public:
         children.push_back(child);
     }
 
-    int evaluate(){
+    int evaluate(u_int64_t call_time){
+
+        last_call = call_time;
 
         if(isLeaf){
             return leaf_id;
@@ -43,7 +46,7 @@ public:
 
         for (auto child : children){
             if (child->eval_function()){
-                return child->evaluate();
+                return child->evaluate(call_time);
             }
 
         }
