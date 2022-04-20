@@ -21,6 +21,8 @@
 //
 // Return an array of Nodes
 
+typedef std::vector<std::vector<std::string>> IndoorMap;
+
 std::vector<GraphNode*> buildGraph(std::string edgesFile, std::string nodesFile ){
     std::vector<GraphNode*> graph;
 
@@ -78,9 +80,9 @@ std::vector<GraphNode*> buildGraph(std::string edgesFile, std::string nodesFile 
 // and a "#" for a wall
 //
 // Return a vector of vectors of chars
-std::vector<std::vector<std::string>> buildMap(std::string mapFile){
+IndoorMap buildMap(std::string mapFile){
 
-    std::vector<std::vector<std::string>> map;
+    IndoorMap map;
     std::ifstream mapFileStream(mapFile);
     std::string line;
     while (std::getline(mapFileStream, line))
@@ -111,19 +113,20 @@ GraphNode* getGraphNodeFromCoordinates(std::vector<GraphNode*> graph, int x, int
     return graph[0];
 }
 
-struct buildGraphFromMapReturn{
+// struct buildGraphFromMapReturn{
+//     std::vector<GraphNode*> graph;
+//     std::vector<room> * rooms;
+// };
+
+
+std::pair<std::vector<GraphNode*>, std::vector<room*>> buildGraphFromMap(IndoorMap map, float scale){
+
     std::vector<GraphNode*> graph;
-    std::vector<room> rooms;
-};
+    std::vector<room*> rooms;
 
+    // buildGraphFromMapReturn returnStruct;
 
-buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> map, float scale){
-    std::vector<GraphNode*> graph;
-
-    std::vector<room> rooms;
-
-    buildGraphFromMapReturn returnStruct;
-
+    // std::cout << "Building graph from map" << std::endl;
 
     // Get each of the rooms in the map
     for(int i = 0; i < map.size(); i++){
@@ -139,9 +142,9 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
                 // get the room number (the number after the 'r')
                 int roomNum = std::stoi(map[i][j].substr(1));
 
-                room newRoom;
-
-                newRoom.roomID = roomNum;
+                
+                // newRoom.roomID = roomNum;
+                // newRoom->roomID = roomNum;
 
                 // loop through the map and find the top left corner of the room
                 int x1 = j -1;
@@ -157,8 +160,8 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
                 }
                 // y1 ++;
 
-                newRoom.x1 = x1 * scale;
-                newRoom.y1 = y1 * scale;
+                // newRoom.x1 = x1 * scale;
+                // newRoom.y1 = y1 * scale;
 
                 // loop through the map and find the bottom right corner of the room
                 int x2 = j + 1;
@@ -174,18 +177,31 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
                 }
 
 
-                newRoom.x2 = x2 * scale;
-                newRoom.y2 = y2 * scale;
+                // newRoom.x2 = x2 * scale;
+                // newRoom.y2 = y2 * scale;
 
-                newRoom.doors = std::vector<GraphNode*>();
-                rooms.push_back(newRoom);
+                
+                // room * newRoom = new room(roomNum, x1 * scale, y1 * scale, x2 * scale, y2 * scale);
+                
+                // newRoom.doors = std::vector<GraphNode*>();
+                // newRoom->doors = std::vector<GraphNode*>();                
+
+                rooms.push_back(new room(roomNum, x1 * scale, y1 * scale, x2 * scale, y2 * scale));
+                // rooms->push_back(newRoom);
+
+                // std::cout << "done with room" << std::endl;
 
             }
         }
     }
 
+    // std::cout << "Finished building graph from map" << std::endl;
+
     // sort the rooms by roomID
     std::sort(rooms.begin(), rooms.end(), compareByRoomID);
+    // std::sort(rooms->begin(), rooms->end(), compareByRoomID);
+
+    // std::cout << "Finished sorting rooms" << std::endl;
 
     // get each of the obstacles in the map
     for(int i = 0; i < map.size(); i++){
@@ -195,11 +211,18 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
                 float random_obstacle_size = 0.2* scale * (rand() % 2) + 8;
 
-                rooms[getRoomFromCoordinates(rooms, j*scale, i*scale).roomID].obstacles.push_back({sf::Vector2f(j*scale,i*scale), random_obstacle_size});
+                room * currentRoom = getRoomFromCoordinates(rooms, j * scale, i * scale);
+
+                currentRoom->obstacles.push_back({sf::Vector2f(j*scale,i*scale), random_obstacle_size});
+
+                // rooms[getRoomFromCoordinates(rooms, j*scale, i*scale).roomID].obstacles.push_back({sf::Vector2f(j*scale,i*scale), random_obstacle_size});
+                // rooms->at(getRoomFromCoordinates(rooms, j*scale, i*scale).roomID).obstacles.push_back({sf::Vector2f(j*scale,i*scale), random_obstacle_size});
 
             }
         }
     }
+
+    // std::cout << "Finished building obstacles" << std::endl;
 
 
     // For each node, if it is adjacent to a number on the map, add it to the room
@@ -216,7 +239,10 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
             if (tile != "d"){
                 // add the node to the room number room
-                rooms[std::stoi(tile)].doors.push_back(graphNode);
+                // rooms[std::stoi(tile)].doors.push_back(graphNode);
+                // rooms->at(std::stoi(tile)).doors.push_back(graphNode);
+                rooms[std::stoi(tile)]->doors.push_back(graphNode);
+
             } else{
                 // add an edge between the node and the node above it
                 // is necessary because adjacent doors may be in different rooms
@@ -232,7 +258,9 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
             if (tile != "d"){
                 // add the node to the room number room
-                rooms[std::stoi(tile)].doors.push_back(graphNode);
+                // rooms[std::stoi(tile)].doors.push_back(graphNode);
+                rooms[std::stoi(tile)]->doors.push_back(graphNode);
+
             } else{
                 // add an edge between the node and the node below it
                 // is necessary because adjacent doors may be in different rooms
@@ -248,7 +276,9 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
             if (tile != "d"){
                 // add the node to the room number room
-                rooms[std::stoi(tile)].doors.push_back(graphNode);
+                // rooms[std::stoi(tile)].doors.push_back(graphNode);
+                rooms[std::stoi(tile)]->doors.push_back(graphNode);
+
             }else{
                 // add an edge between the node and the node to the left of it
                 // is necessary because adjacent doors may be in different rooms
@@ -265,7 +295,9 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
             if (tile != "d"){
                 // add the node to the room number room
-                rooms[std::stoi(tile)].doors.push_back(graphNode);
+                // rooms[std::stoi(tile)].doors.push_back(graphNode);
+                rooms[std::stoi(tile)]->doors.push_back(graphNode);
+
             } else{
                 // add an edge between the node and the node to the right of it
                 // is necessary because adjacent doors may be in different rooms
@@ -275,6 +307,8 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
         }
     }
+
+    // std::cout << "Finished building doors" << std::endl;
 
     float wallOffset = 5.0f;
 
@@ -289,46 +323,62 @@ buildGraphFromMapReturn buildGraphFromMap(std::vector<std::vector<std::string>> 
 
     }
 
-    // for each node in each room, add an edge to every other node in the room with a cost equal to the euclidean distance between the two nodes
+    // std::cout << "Finished scaling graph" << std::endl;
+
+    // // for each node in each room, add an edge to every other node in the room with a cost equal to the euclidean distance between the two nodes
+    // for(auto room : rooms){
+    //     for(auto node : room.doors){
+    //         for(auto otherNode : room.doors){
+    //             if(node != otherNode){
+    //                 node->addNeighbor(otherNode, sqrt(pow(node->x - otherNode->x, 2) + pow(node->y - otherNode->y, 2)));
+    //             }
+    //         }
+    //     }
+    // }
+
+
+    // for each room, get the interior graph
+    // for(auto room : rooms){
+    //     room.buildGraphFromRoom(10,10);
+    // }
+
+
+    // for each room, get the interior graph
     for(auto room : rooms){
-        for(auto node : room.doors){
-            for(auto otherNode : room.doors){
-                if(node != otherNode){
-                    node->addNeighbor(otherNode, sqrt(pow(node->x - otherNode->x, 2) + pow(node->y - otherNode->y, 2)));
-                }
-            }
-        }
+        
+        std::vector<GraphNode *> interior = room->buildGraphFromRoom(10);
+
+        // append the interior graph to the graph
+        graph.insert(graph.end(), interior.begin(), interior.end());
+        
     }
 
+    // returnStruct.graph = graph;
+    // returnStruct.rooms = rooms;
 
-    returnStruct.graph = graph;
-    returnStruct.rooms = rooms;
+    // return returnStruct;
 
-    return returnStruct;
+    return {graph, rooms};
 }
 
-
-std::vector<GraphNode*> addNodeToGraph(std::vector<GraphNode*> graph, std::vector<room> rooms, GraphNode* node){
+std::vector<GraphNode*> addNodeToGraph(std::vector<GraphNode*> graph, std::vector<room*> rooms, GraphNode* node){
 
     // get the room that the node is in
-    room room = getRoomFromCoordinates(rooms, node->x, node->y);
+    // room room = getRoomFromCoordinates(rooms, node->x, node->y);
+    room * room = getRoomFromCoordinates(rooms, node->x, node->y);
     
-    // add an edge to and from every other node in the room
-    for(auto otherNode : room.doors){
-        if(otherNode != node){
-
-            node->addNeighbor(otherNode, sqrt(pow(node->x - otherNode->x, 2) + pow(node->y - otherNode->y, 2)));
-            otherNode->addNeighbor(node, sqrt(pow(otherNode->x - node->x, 2) + pow(otherNode->y - node->y, 2)));
-        }
-    }
+    room->addNodeToInteriorGraph(node);
 
     return graph;
 }
 
 std::vector<GraphNode*> removeNodeFromGraph(std::vector<GraphNode*> graph, GraphNode* node){
 
+    // std::cout << "Removing node from graph" << std::endl;
+
     // remove each of the node's neighbor's edges to the node
     for(auto neighbor : node->neighbors){
+
         neighbor.second->removeNeighbor(node);
     }
     // remove the node's edges to its neighbors

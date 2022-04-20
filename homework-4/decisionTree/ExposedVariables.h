@@ -15,7 +15,7 @@ public:
     sf::Vector2f local_target;
     std::list<sf::Vector2f> globalPath;
     std::list<sf::Vector2f> localPath;
-    room current_room;
+    room * current_room;
     sf::Vector2f enemy_position;
     bool is_paused;
 
@@ -26,7 +26,7 @@ public:
         this->local_target = sf::Vector2f(0,0);
         this->globalPath = std::list<sf::Vector2f>();
         this->localPath = std::list<sf::Vector2f>();
-        this->current_room = room();
+        this->current_room = NULL;
         this->enemy_position = sf::Vector2f(0,0);
         this->is_paused = false;
         

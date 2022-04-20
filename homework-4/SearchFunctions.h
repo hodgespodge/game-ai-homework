@@ -6,6 +6,7 @@
 #include <functional>
 #include <iostream>
 #include "Heuristic.h"
+#include "SFML/Graphics.hpp"
 
 // Given the final SearchNode, reconstruct the path from the start node to the goal node using the parent pointers
 // and return it as a vector of Node pointers.
@@ -21,11 +22,12 @@ std::vector<GraphNode*> reconstructPath(GraphNode* node){
     return path;
 }
 
+
+
 // Perform an a* search on the graph from start to goal
 // Return a vector of pointers to the nodes in the path
 
-std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vector<GraphNode*> nodeGraph, Heuristic* heuristic){
-
+std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vector<GraphNode*> nodeGraph, Heuristic* heuristic, sf::Vector2f enemy_pos, float enemy_radius){
 
     start->g = 0;
     start->h = heuristic->h(start);
@@ -38,6 +40,8 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
     // Second value is the GraphNode itself
     open.insert(std::make_pair(start->f(), start));
 
+    bool enemy_in_map = enemy_radius > 0;
+
     // While the open set is not empty
     while(!open.empty()){
 
@@ -45,6 +49,20 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
         GraphNode* current = open.begin()->second;
         open.erase(open.begin());
         current->visited = true;
+        
+        // if(enemy_in_map){
+
+        //     if(sqrt(pow(current->x - enemy_pos.x, 2) + pow(current->y - enemy_pos.y, 2)) < enemy_radius){ // skip this node if it is within the enemy's radius
+
+        //         if (current->id == goal->id){ // if the goal node is inside the enemy's radius, no path is possible
+        //             return std::vector<GraphNode*>();
+        //         }
+
+        //         std::cout << "skipping node with enemy" << std::endl;
+
+        //         continue;
+        //     }
+        // }
 
         // Check if we have reached the goal
         if(current->id == goal->id){
@@ -59,6 +77,13 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
             if(!neighbor->visited){
                 // Calculate the cost of the path from start to neighbor
                 float cost = current->g + it->first;
+
+                if(enemy_in_map){
+                    float enemy_dist = sqrt(pow(neighbor->x - enemy_pos.x, 2) + pow(neighbor->y - enemy_pos.y, 2));
+                    if(enemy_dist < enemy_radius){
+                        cost += enemy_radius/enemy_dist;
+                    }
+                }
 
                 // If the cost is less than the neighbor's current cost
                 if(cost < neighbor->g){
@@ -81,6 +106,15 @@ std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vec
 
     // If the open set is empty, there is no path
     return std::vector<GraphNode*>();
+}
+
+std::vector<GraphNode*> shortestPath(GraphNode* start, GraphNode* goal, std::vector<GraphNode*> nodeGraph, Heuristic* heuristic){
+
+    sf::Vector2f placeholder_enemy = sf::Vector2f(-1000,-1000);
+    float enemy_radius = 0;
+
+    return shortestPath(start, goal, nodeGraph, heuristic, placeholder_enemy, enemy_radius);
+
 }
 
 std::vector<GraphNode*> shortestPath(int startID, int goalID, std::vector<GraphNode*> nodeGraph, Heuristic* heuristic){

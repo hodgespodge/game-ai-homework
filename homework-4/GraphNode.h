@@ -33,6 +33,10 @@ class GraphNode
             visited = false;
         }
 
+        float diff(GraphNode* node){
+            return sqrt(pow(this->x - node->x, 2) + pow(this->y - node->y, 2));
+        }
+
         // Add a neighbor to the node
         void addNeighbor(GraphNode* neighbor, int cost){
             neighbors.emplace(std::make_pair(cost, neighbor));
@@ -57,6 +61,12 @@ class GraphNode
                 }
             }
             std::cout << "Neighbor not found" << std::endl;
+        }
+
+        void printNeighbors(){
+            for(auto it = neighbors.begin(); it != neighbors.end(); ++it){
+                std::cout << "     Neighbor: (" << it->second->x << ", " <<it->second->x << ") Cost: " << it->first << std::endl;
+            }
         }
 
         // calling the destructor will delete the entire graph I believe

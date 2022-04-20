@@ -18,7 +18,7 @@
 #include "CatAI.h"
 #include "PathFollower.h"
 
-#include "decisionTree/LocalNavTree.h"
+#include "decisionTree/NavTree.h"
 
 
 int demonstrateMazeNavigation(bool new_map){
@@ -48,7 +48,7 @@ int demonstrateMazeNavigation(bool new_map){
 
     }
 
-    std::vector<std::vector<std::string>> indoorMap = buildMap(indoorMapFile);
+    IndoorMap indoorMap = buildMap(indoorMapFile);
 
     // Get map size
     int mapWidth = indoorMap[0].size();
@@ -62,10 +62,10 @@ int demonstrateMazeNavigation(bool new_map){
 
     float scale = windowSize/mapSize;
 
-    buildGraphFromMapReturn graph_rooms = buildGraphFromMap(indoorMap, scale);
+    auto graph_rooms = buildGraphFromMap(indoorMap, scale);
 
-    std::vector<GraphNode*> graph = graph_rooms.graph;
-    std::vector<room> rooms = graph_rooms.rooms;
+    std::vector<GraphNode*> graph = graph_rooms.first;
+    std::vector<room*>  rooms = graph_rooms.second;
 
     sf::Sprite * cheese = new sf::Sprite();
     sf::Texture cheeseTexture;
@@ -88,10 +88,10 @@ int demonstrateMazeNavigation(bool new_map){
         return -1;
     }
     enemy->setTexture(catTexture);
-    enemy->setPosition(sf::Vector2f(25, 25));
+    enemy->setPosition(sf::Vector2f(250, 250));
 
     // initialize the map drawer
-    MapDrawer mapDrawer(indoorMap, graph, rooms , scale);
+    MapDrawer mapDrawer(indoorMap , graph, rooms, scale);
 
     SteeringBehavior* steeringBehavior = new PathFollower(window, graph, rooms, *cheese, *enemy);
 
@@ -104,7 +104,7 @@ int demonstrateMazeNavigation(bool new_map){
 
     Boid* sprite = new Boid(numBreadCrumbs, 1.0);
 
-    CatAI* catAI = new CatAI(window, graph, rooms, * sprite);
+    CatAI* catAI = new CatAI(window, graph, rooms, *sprite);
 
     sf::Texture texture;
     if(!texture.loadFromFile("images/mouse.png")){
@@ -126,19 +126,28 @@ int demonstrateMazeNavigation(bool new_map){
 
         // check for mouse events (used by arive and align)
         sf::Event event;
+
         while (window.pollEvent(event))
         {
 
-            if (event.type == sf::Event::Closed)
+            if (event.type == sf::Event::Closed){
                 window.close();
-
+            }
             else if (event.type == sf::Event::KeyPressed){
                 if (event.key.code == sf::Keyboard::Space){
                     drawOverlay = !drawOverlay;
-
+                } 
+                else if (event.key.code == sf::Keyboard::LShift ){
+                    steeringBehavior->shiftPressed = true;
+                    // std::cout << "shift pressed" << std::endl;
                 }
             }
-            
+            else if (event.type == sf::Event::KeyReleased){
+                if (event.key.code == sf::Keyboard::LShift){
+                    steeringBehavior->shiftPressed = false;
+                    // std::cout << "shift released" << std::endl;
+                }
+            }
             else { 
                 steeringBehavior->checkEvent(event);
             }

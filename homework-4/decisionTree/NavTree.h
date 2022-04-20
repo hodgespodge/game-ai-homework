@@ -1,5 +1,5 @@
-#ifndef DECISIONTREE2_H
-#define DECISIONTREE2_H
+#ifndef NAVTREE_H
+#define NAVTREE_H
 
 // #include "DecisionTreeNode.h"
 #include "SFML/Graphics.hpp"
@@ -71,9 +71,9 @@ DTNode * createTree(ExposedVariables * variables) {
         -1
     );
 
-    DTNode *if_local_path_empty = new DTNode(
+    DTNode *if_path_empty = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_local_path_empty" << std::endl;
+            // std::cout << "in the if_path_empty" << std::endl;
 
             return variables.localPath.size() <= 1;
             
@@ -103,9 +103,9 @@ DTNode * createTree(ExposedVariables * variables) {
         1
     );
 
-    DTNode *if_not_local_path_empty = new DTNode(
+    DTNode *if_not_path_empty = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_not_local_path_empty" << std::endl;
+            // std::cout << "in the if_not_path_empty" << std::endl;
             return variables.localPath.size() > 1;
             
         },
@@ -113,46 +113,60 @@ DTNode * createTree(ExposedVariables * variables) {
         2
     );
 
-    DTNode *if_local_path_not_set_OR_enemy_in_room = new DTNode(
+    DTNode *if_path_not_set = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_local_path_not_set_OR_enemy_in_room" << std::endl;
-            if (variables.localPath.size() == 0) {
-                // std::cout << "local path is empty" << std::endl;
-                return true;
-            }
-            if (variables.current_room.contains(variables.enemy_position.x, variables.enemy_position.y)) {
-                // std::cout << "enemy in room" << std::endl;
-                return true;
-            }
-            return false;
+            // std::cout << "in the if_path_not_set_OR_enemy_in_room" << std::endl;
+            
+            return variables.localPath.size() == 0;
+            
         },
         *variables,
         3
     );
   
-    DTNode *if_local_path_set_AND_enemy_not_in_room = new DTNode(
+    DTNode *if_path_set = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_local_path_set_AND_enemy_not_in_room" << std::endl;
-            return variables.localPath.size() > 0 && !variables.current_room.contains(variables.enemy_position.x, variables.enemy_position.y);
+            // std::cout << "in the if_path_set_AND_enemy_not_in_room" << std::endl;
+            return variables.localPath.size() != 0;
         },
         *variables,
-        4
+        -1
     );
 
-    root->AddChild(is_paused);
+    DTNode *if_enemy_in_room = new DTNode(
+        [](ExposedVariables & variables) -> bool{
+            // std::cout << "in the if_enemy_in_room" << std::endl;
+            return variables.current_room->contains(variables.enemy_position.x, variables.enemy_position.y);
+        },
+        *variables,
+        6
+    );
+
+    DTNode *if_enemy_not_in_room = new DTNode(
+        [](ExposedVariables & variables) -> bool{
+            // std::cout << "in the if_enemy_not_in_room" << std::endl;
+            return !variables.current_room->contains(variables.enemy_position.x, variables.enemy_position.y);
+        },
+        *variables,
+        7
+    );
+
+    root->AddChild(is_paused); // leaf 5
 
     root->AddChild(is_not_paused);
 
         is_not_paused->AddChild(within_range);
-            within_range->AddChild(if_local_path_empty); 
-                if_local_path_empty->AddChild(if_global_path_empty); // leaf 0
-                if_local_path_empty->AddChild(if_not_global_path_empty); // leaf 1
+            within_range->AddChild(if_path_empty); 
+                if_path_empty->AddChild(if_global_path_empty); // leaf 0
+                if_path_empty->AddChild(if_not_global_path_empty); // leaf 1
 
-            within_range->AddChild(if_not_local_path_empty); // leaf 2
+            within_range->AddChild(if_not_path_empty); // leaf 2
 
         is_not_paused->AddChild(not_within_range);
-            not_within_range->AddChild(if_local_path_not_set_OR_enemy_in_room); // leaf 3
-            not_within_range->AddChild(if_local_path_set_AND_enemy_not_in_room); // leaf 4
+            not_within_range->AddChild(if_path_not_set); // leaf 3
+            not_within_range->AddChild(if_path_set); 
+                if_path_set->AddChild(if_enemy_in_room); // leaf 6
+                if_path_set->AddChild(if_enemy_not_in_room); // leaf 7
 
     return root;
 

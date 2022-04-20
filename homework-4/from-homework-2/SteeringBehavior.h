@@ -14,6 +14,7 @@ public:
     bool drawBreadcrumbs = false;
     bool fadeBreadcrumbs = false;
     bool drawID = true;
+    bool shiftPressed = false;
 
     virtual void updateSprite( Boid& sprite, float elapsedTime) = 0;
     virtual void postUpdate() = 0;

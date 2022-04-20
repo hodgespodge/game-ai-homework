@@ -16,20 +16,20 @@ class CatAI
         sf::RenderWindow * window;
         Boid * mouse;
 
-        room current_room;
-        std::vector<room> rooms;
+        room * current_room;
+        std::vector<room*> rooms;
         std::vector<GraphNode*> graph;
         bool is_initialized;
         float max_speed;
 
-        CatAI(sf::RenderWindow & window,std::vector<GraphNode*> graph, std::vector<room> rooms, Boid & mouse)
+        CatAI(sf::RenderWindow & window,std::vector<GraphNode*> graph, std::vector<room*> rooms, Boid & mouse)
         {
             this->window = &window;
             this->mouse = &mouse;
             this->graph = graph;
             this->rooms = rooms;
 
-            current_room = room();
+            current_room = rooms[0];
             is_initialized = false;
             max_speed = 0.02;
 

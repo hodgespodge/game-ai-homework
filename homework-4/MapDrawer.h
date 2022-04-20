@@ -27,7 +27,7 @@ public:
     std::vector<sf::Text> door_numbers;
     std::vector<sf::Text> room_numbers;
 
-    MapDrawer(std::vector<std::vector<std::string>> map, std::vector<GraphNode*> Nodes ,std::vector<room> rooms ,float scale){
+    MapDrawer(IndoorMap map, std::vector<GraphNode*> Nodes ,std::vector<room*> rooms ,float scale){
         this->map = map;
         this->scale = scale;
 
@@ -109,52 +109,66 @@ public:
         }
 
         for(auto node : Nodes){
-            sf::CircleShape circle(scale/2);
-            circle.setPosition(node->x - scale/2, node->y - scale/2);
-            circle.setFillColor(sf::Color::White);
-            circles.push_back(circle);
+            // sf::CircleShape circle(scale/10);
+            // circle.setPosition(node->x - scale/2, node->y - scale/2);
+            // circle.setFillColor(sf::Color::White);
+            // circles.push_back(circle);
 
             // for each neighbor of the node, draw a line between the node and the neighbor
             for(auto neighbor : node->neighbors){
+
+                // std::cout the neighbors
+                // std::cout << "Neighbor: " << neighbor.second->x << " ," << neighbor.second->y << std::endl;
+    
                 // sf::RectangleShape line = lineBetweenPoints(sf::Vector2f(node->x + scale/2, node->y + scale/2), sf::Vector2f(neighbor.second->x + scale/2, neighbor.second->y + scale/2), 1);
-                sf::RectangleShape line = lineBetweenPoints(sf::Vector2f(node->x , node->y ), sf::Vector2f(neighbor.second->x, neighbor.second->y ), 1);
+                sf::RectangleShape line = lineBetweenPoints(sf::Vector2f(node->x , node->y ), sf::Vector2f(neighbor.second->x, neighbor.second->y ), 0.7);
                 lines.push_back(line);
             }
 
             // for each node, draw a text with the node's ID
-            sf::Text text;
 
-            text.setFont(font);
-            text.setCharacterSize(18);
-            text.setColor(sf::Color::Red);
-            text.setString(std::to_string(node->id));
-            text.setPosition(node->x + scale/2 - text.getGlobalBounds().width/2, node->y + scale/2 - text.getGlobalBounds().height/2);
-            text.setStyle(sf::Text::Bold);
-            door_numbers.push_back(text);
+            // sf::Text text;
+
+            // text.setFont(font);
+            // text.setCharacterSize(18);
+            // text.setColor(sf::Color::Red);
+            // text.setString(std::to_string(node->id));
+            // text.setPosition(node->x + scale/2 - text.getGlobalBounds().width/2, node->y + scale/2 - text.getGlobalBounds().height/2);
+            // text.setStyle(sf::Text::Bold);
+            // door_numbers.push_back(text);
 
         }
         
 
         for(auto room : rooms){
-
+        // for( auto it = rooms->begin(); it != rooms->end(); ++it ){
             
+            // room room = *it;
+
             int x1; // the x coordinate of the top left corner of the room
             int y1; // the y coordinate of the top left corner of the room
 
             int x2; // the x coordinate of the bottom right corner of the room
             int y2; // the y coordinate of the bottom right corner of the room
 
-            x1 = room.x1;
-            y1 = room.y1;
+            // x1 = room.x1;
+            // y1 = room.y1;
 
-            x2 = room.x2;
-            y2 = room.y2;
+            // x2 = room.x2;
+            // y2 = room.y2;
+
+            x1 = room->x1;
+            y1 = room->y1;
+            
+            x2 = room->x2;
+            y2 = room->y2;
 
             sf::RectangleShape rect(sf::Vector2f(x2-x1, y2-y1));
             rect.setPosition(x1, y1);
 
             // set color to room number
-            int roomNum = room.roomID;
+            // int roomNum = room.roomID;
+            int roomNum = room->roomID;
 
             sf::Color color = sf::Color(roomNum*20, roomNum*35, roomNum*50 % 255, 124);
 
@@ -162,12 +176,37 @@ public:
             floors.push_back(rect);
 
             // for each obstacle in the room, draw a circle
-            for(std::pair<sf::Vector2f, float> obstacle : room.obstacles){
+            // for(auto obstacle : room.obstacles){
+            for(auto obstacle : room->obstacles){
                 sf::CircleShape circle(obstacle.second);
                 circle.setPosition(obstacle.first.x - scale/2, obstacle.first.y - scale/2);
                 circle.setFillColor(sf::Color::Black);
                 obstacles.push_back(circle);
             }
+
+            // print the number of interior nodes in the room
+            // std::cout << "Room " << roomNum << " has " << room.interiorGraph.size() << " interior nodes" << std::endl;
+            // std::cout << "Room " << roomNum << " has " << room->interiorGraph.size() << " interior nodes" << std::endl;
+
+            // for each interior node in the room, draw a circle
+
+            // for(GraphNode * interiorNode : room->interiorGraph){
+
+            //     // std::cout << "interior node: " << interiorNode->id << std::endl;
+
+            //     sf::CircleShape circle(scale/10);
+            //     circle.setPosition(interiorNode->x - scale/10, interiorNode->y - scale/10);
+            //     circle.setFillColor(sf::Color::White);
+            //     circles.push_back(circle);
+
+            //     // for each neighbor of the interior node, draw a line between the interior node and the neighbor
+            //     for(auto neighbor : interiorNode->neighbors){
+            //         // sf::RectangleShape line = lineBetweenPoints(sf::Vector2f(interiorNode->x + scale/2, interiorNode->y + scale/2), sf::Vector2f(neighbor.second->x + scale/2, neighbor.second->y + scale/2), 1);
+            //         sf::RectangleShape line = lineBetweenPoints(sf::Vector2f(interiorNode->x , interiorNode->y ), sf::Vector2f(neighbor.second->x, neighbor.second->y ), 1);
+            //         lines.push_back(line);
+            //     }
+            // }
+
 
             // for each room, draw a text with the room's ID
             sf::Text text;
@@ -175,7 +214,8 @@ public:
             text.setFont(font);
             text.setCharacterSize(18);
             text.setColor(sf::Color::Black);
-            text.setString(std::to_string(room.roomID));
+            // text.setString(std::to_string(room.roomID));
+            text.setString(std::to_string(room->roomID));
             text.setPosition(x1 + (x2-x1)/2 - text.getGlobalBounds().width/2, y1 + (y2-y1)/2 - text.getGlobalBounds().height/2);
             text.setStyle(sf::Text::Bold);
             room_numbers.push_back(text);
