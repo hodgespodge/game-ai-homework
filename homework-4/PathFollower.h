@@ -260,8 +260,6 @@ class PathFollower : public SteeringBehavior
                 case 0:
                 {
 
-                    // std::cout << "-add random target to global queue" << std::endl;
-
                     this->targetQueue.push_back(getRandomLocation());
 
                     break;
@@ -270,10 +268,6 @@ class PathFollower : public SteeringBehavior
                 case 1:
                 {
                     
-                    // pop off the next target from the queue
-
-                    // std::cout << "-pop off next target from global queue" << std::endl;
-
                     this->globalTarget = targetQueue.front();
                     targetQueue.pop_front();
 
@@ -287,19 +281,14 @@ class PathFollower : public SteeringBehavior
                     
                 case 2:
                 {
-                    // std::cout << "-get the next local target" << std::endl;
 
                     do {
 
                         this->localTarget = path.front();
                         path.pop_front();
 
-                        // std::cout << "Local Target: " << localTarget.x << ", " << localTarget.y << std::endl;
-
                     } while( path.size() > 0 && sqrt(pow(sprite.getPosition().x - localTarget.x, 2) + pow(sprite.getPosition().y - localTarget.y, 2)) < target_range);
 
-                    // std::cout << "local target: " << localTarget.x << "," << localTarget.y << std::endl;
-                
                     followLocalPath(sprite, elapsedTime);
 
                     break;
@@ -308,10 +297,6 @@ class PathFollower : public SteeringBehavior
                 case 3:
                 {
 
-                    // std::cout << "-path not set" << std::endl;
-                    // path.clear();
-                    
-                    // getNewLocalPath(*currentRoom, localPathStart, globalNextTarget);
                     getNewPath(sprite);
 
                     followLocalPath(sprite, elapsedTime);
@@ -321,15 +306,13 @@ class PathFollower : public SteeringBehavior
                     
                 case 4:
                 {
-                    // std::cout << "-placeholder" << std::endl;
-                    
+
                     break;
                 }
 
                 case 5:
                 {
-                    // caught by cat
-                    
+
                     if(pause_time > max_pause_time){
                         pause_time = 0;
                         is_paused = false;
@@ -349,10 +332,8 @@ class PathFollower : public SteeringBehavior
 
                 case 6:
                 {
-                    // std::cout << "-enemy nearby" << std::endl;
- 
-                    // loop through the next 10 nodes in the path and check if any of them are in the enemy
 
+                    // loop through the next 10 nodes in the path and check if any of them are in the enemy
                     maxSpeed = 0.07;
                     maxSpeedDelta = 0.03;
 
@@ -428,26 +409,25 @@ class PathFollower : public SteeringBehavior
 
         void checkEvent(sf::Event event){
             // Mouse click : set target position
-
+            
             if (event.type == sf::Event::MouseButtonPressed)
             {
 
                 if (!shiftPressed){
                     targetQueue.clear();
                     path.clear();
-                    // std::cout << "cleared target queue and path" << std::endl;
+
                     needToUpdateGraph = true;
                     globalTarget = sf::Vector2f(sf::Mouse::getPosition(*window));
                 
                 }else{
-                    // std::cout << "shift left click pressed" << std::endl;
+
                     targetQueue.push_back(sf::Vector2f(sf::Mouse::getPosition(*window)));
                 }
       
 
             }
         }
-
 
         std::string getName(){
             return "PathFollower";
