@@ -88,7 +88,7 @@ int demonstrateMazeNavigation(bool new_map){
         return -1;
     }
     enemy->setTexture(catTexture);
-    enemy->setPosition(sf::Vector2f(250, 250));
+    enemy->setPosition(sf::Vector2f(windowWidth*2/3, windowHeight *2/3));
 
     // initialize the map drawer
     MapDrawer mapDrawer(indoorMap , graph, rooms, scale);
