@@ -82,22 +82,22 @@ DTNode * createTree(ExposedVariables * variables) {
         -1
     );
 
-    DTNode *if_global_path_empty = new DTNode(
+    DTNode *if_target_queue_empty = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_global_path_empty" << std::endl;
+            // std::cout << "in the if_target_queue_empty" << std::endl;
 
-            // std::cout << "returning variables.globalPath.size()" << variables.globalPath.size() << std::endl;
+            // std::cout << "returning variables.targetQueue.size()" << variables.targetQueue.size() << std::endl;
 
-            return variables.globalPath.size() == 0;
+            return variables.targetQueue.size() == 0;
         },
         *variables,
         0
     );
 
-    DTNode *if_not_global_path_empty = new DTNode(
+    DTNode *if_not_target_queue_empty = new DTNode(
         [](ExposedVariables & variables) -> bool{
-            // std::cout << "in the if_not_global_path_empty" << std::endl;
-            return variables.globalPath.size() != 0;
+            // std::cout << "in the if_not_target_queue_empty" << std::endl;
+            return variables.targetQueue.size() != 0;
         },
         *variables,
         1
@@ -162,8 +162,8 @@ DTNode * createTree(ExposedVariables * variables) {
 
         is_not_paused->AddChild(within_range);
             within_range->AddChild(if_path_empty); 
-                if_path_empty->AddChild(if_global_path_empty); // leaf 0
-                if_path_empty->AddChild(if_not_global_path_empty); // leaf 1
+                if_path_empty->AddChild(if_target_queue_empty); // leaf 0
+                if_path_empty->AddChild(if_not_target_queue_empty); // leaf 1
 
             within_range->AddChild(if_not_path_empty); // leaf 2
 

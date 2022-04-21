@@ -248,7 +248,7 @@ class PathFollower : public SteeringBehavior
 
             locals-> sprite = &sprite;
             locals-> local_target = localTarget;
-            locals-> globalPath = targetQueue;
+            locals-> targetQueue = targetQueue;
             locals-> localPath = path;
             locals-> current_room = currentRoom;
             locals-> enemy_position = enemy->getPosition();
