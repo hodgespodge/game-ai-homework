@@ -225,7 +225,7 @@ class CatAI
                         case 1:
                             // std::cout << "findMouse" << std::endl;
 
-                            findMouse(sprite, 8500);
+                            findMouse(sprite, 14500);
 
                             break;
                         case 2:
@@ -233,7 +233,7 @@ class CatAI
 
                             // std::cout << "chase mouse" << std::endl;
 
-                            chaseMouse(sprite, 2000);
+                            chaseMouse(sprite, 3000);
 
                             break;
 
